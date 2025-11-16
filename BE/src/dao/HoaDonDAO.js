@@ -16,7 +16,7 @@ class HoaDonDAO {
   }
 
   async getById(maHoaDon) {
-    const query = 'SELECT * FROM HoaDon WHERE maHoaDon = $1';
+    const query = 'SELECT * FROM HoaDon WHERE maHoaDon = ?';
     const result = await this.db.query(query, [maHoaDon]);
     if (result.rows.length === 0) return null;
     return new HoaDon(result.rows[0]);
@@ -25,7 +25,7 @@ class HoaDonDAO {
   async getByDateRange(startDate, endDate) {
     const query = `
       SELECT * FROM HoaDon 
-      WHERE ngayLap >= $1 AND ngayLap <= $2
+      WHERE ngayLap >= ? AND ngayLap <= ?
       ORDER BY ngayLap DESC
     `;
     const result = await this.db.query(query, [startDate, endDate]);
@@ -37,8 +37,7 @@ class HoaDonDAO {
       INSERT INTO HoaDon (maDatPhong, maKhachHang, maNhanVien, ngayLap, tongTien, 
                           tienPhong, tienMatHang, giamGia, thueVAT, thanhTien,
                           phuongThucThanhToan, trangThai, ghiChu, ngayTao, ngayCapNhat)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-      RETURNING *
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       hoaDon.maDatPhong,
@@ -57,18 +56,21 @@ class HoaDonDAO {
       new Date(),
       new Date()
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM HoaDon WHERE maHoaDon = LAST_INSERT_ID()';
+    const result = await this.db.query(selectQuery);
     return new HoaDon(result.rows[0]);
   }
 
   async updateTrangThai(maHoaDon, trangThai) {
     const query = `
       UPDATE HoaDon 
-      SET trangThai = $1, ngayCapNhat = $2
-      WHERE maHoaDon = $3
-      RETURNING *
+      SET trangThai = ?, ngayCapNhat = ?
+      WHERE maHoaDon = ?
     `;
-    const result = await this.db.query(query, [trangThai, new Date(), maHoaDon]);
+    await this.db.query(query, [trangThai, new Date(), maHoaDon]);
+    const selectQuery = 'SELECT * FROM HoaDon WHERE maHoaDon = ?';
+    const result = await this.db.query(selectQuery, [maHoaDon]);
     if (result.rows.length === 0) return null;
     return new HoaDon(result.rows[0]);
   }

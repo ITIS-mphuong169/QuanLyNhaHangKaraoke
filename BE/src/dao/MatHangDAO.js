@@ -16,101 +16,146 @@ class MatHangDAO {
   }
 
   async getById(maMatHang) {
-    const query = 'SELECT * FROM MatHang WHERE maMatHang = $1';
+    const query = 'SELECT * FROM MatHang WHERE maMatHang = ?';
     const result = await this.db.query(query, [maMatHang]);
     if (result.rows.length === 0) return null;
     return new MatHang(result.rows[0]);
   }
 
-  async getByDanhMuc(danhMuc) {
-    const query = 'SELECT * FROM MatHang WHERE danhMuc = $1 ORDER BY tenMatHang';
-    const result = await this.db.query(query, [danhMuc]);
+  async getByNhaCungCap(maNhaCungCap) {
+    const query = 'SELECT * FROM MatHang WHERE maNhaCungCap = ? ORDER BY maMatHang';
+    const result = await this.db.query(query, [maNhaCungCap]);
     return result.rows.map(row => new MatHang(row));
   }
 
-  async getByTrangThai(trangThai) {
-    const query = 'SELECT * FROM MatHang WHERE trangThai = $1 ORDER BY tenMatHang';
-    const result = await this.db.query(query, [trangThai]);
-    return result.rows.map(row => new MatHang(row));
-  }
-
-  async search(keyword) {
+  /**
+   * Lấy tất cả mặt hàng kèm thông tin chi tiết từ MatHangCungcap
+   */
+  async getAllWithDetails() {
     const query = `
-      SELECT * FROM MatHang 
-      WHERE tenMatHang ILIKE $1 OR danhMuc ILIKE $1
-      ORDER BY tenMatHang
+      SELECT 
+        mh.maMatHang,
+        mh.giaBan,
+        mh.tonKho,
+        mh.maNhaCungCap,
+        mh.ngayTao,
+        mh.ngayCapNhat,
+        mhc.tenMatHang,
+        mhc.giaNhap,
+        mhc.donViTinh,
+        mhc.moTa
+      FROM MatHang mh
+      LEFT JOIN MatHangCungcap mhc ON mh.maMatHang = mhc.maMatHang
+      ORDER BY mh.maMatHang
     `;
-    const result = await this.db.query(query, [`%${keyword}%`]);
-    return result.rows.map(row => new MatHang(row));
+    const result = await this.db.query(query);
+    return result.rows.map(row => ({
+      maMatHang: row.maMatHang,
+      giaBan: row.giaBan,
+      tonKho: row.tonKho,
+      maNhaCungCap: row.maNhaCungCap,
+      ngayTao: row.ngayTao,
+      ngayCapNhat: row.ngayCapNhat,
+      tenMatHang: row.tenMatHang,
+      giaNhap: row.giaNhap,
+      donViTinh: row.donViTinh,
+      moTa: row.moTa
+    }));
+  }
+
+  /**
+   * Lấy mặt hàng theo ID kèm thông tin chi tiết
+   */
+  async getByIdWithDetails(maMatHang) {
+    const query = `
+      SELECT 
+        mh.maMatHang,
+        mh.giaBan,
+        mh.tonKho,
+        mh.maNhaCungCap,
+        mh.ngayTao,
+        mh.ngayCapNhat,
+        mhc.tenMatHang,
+        mhc.giaNhap,
+        mhc.donViTinh,
+        mhc.moTa
+      FROM MatHang mh
+      LEFT JOIN MatHangCungcap mhc ON mh.maMatHang = mhc.maMatHang
+      WHERE mh.maMatHang = ?
+    `;
+    const result = await this.db.query(query, [maMatHang]);
+    if (result.rows.length === 0) return null;
+    const row = result.rows[0];
+    return {
+      maMatHang: row.maMatHang,
+      giaBan: row.giaBan,
+      tonKho: row.tonKho,
+      maNhaCungCap: row.maNhaCungCap,
+      ngayTao: row.ngayTao,
+      ngayCapNhat: row.ngayCapNhat,
+      tenMatHang: row.tenMatHang,
+      giaNhap: row.giaNhap,
+      donViTinh: row.donViTinh,
+      moTa: row.moTa
+    };
   }
 
   async create(matHang) {
     const query = `
-      INSERT INTO MatHang (tenMatHang, danhMuc, donViTinh, giaBan, giaNhap, tonKho, moTa, hinhAnh, maNhaCungCap, trangThai, ngayTao, ngayCapNhat)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      RETURNING *
+      INSERT INTO MatHang (giaBan, tonKho, maNhaCungCap, ngayTao, ngayCapNhat)
+      VALUES (?, ?, ?, ?, ?)
     `;
     const values = [
-      matHang.tenMatHang,
-      matHang.danhMuc,
-      matHang.donViTinh,
       matHang.giaBan,
-      matHang.giaNhap,
-      matHang.tonKho,
-      matHang.moTa,
-      matHang.hinhAnh,
+      matHang.tonKho || 0,
       matHang.maNhaCungCap,
-      matHang.trangThai,
       new Date(),
       new Date()
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM MatHang WHERE maMatHang = LAST_INSERT_ID()';
+    const result = await this.db.query(selectQuery);
     return new MatHang(result.rows[0]);
   }
 
   async update(maMatHang, matHang) {
     const query = `
       UPDATE MatHang 
-      SET tenMatHang = $1, danhMuc = $2, donViTinh = $3, giaBan = $4, 
-          giaNhap = $5, tonKho = $6, moTa = $7, hinhAnh = $8, 
-          maNhaCungCap = $9, trangThai = $10, ngayCapNhat = $11
-      WHERE maMatHang = $12
-      RETURNING *
+      SET giaBan = ?, tonKho = ?, maNhaCungCap = ?, ngayCapNhat = ?
+      WHERE maMatHang = ?
     `;
     const values = [
-      matHang.tenMatHang,
-      matHang.danhMuc,
-      matHang.donViTinh,
       matHang.giaBan,
-      matHang.giaNhap,
       matHang.tonKho,
-      matHang.moTa,
-      matHang.hinhAnh,
       matHang.maNhaCungCap,
-      matHang.trangThai,
       new Date(),
       maMatHang
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM MatHang WHERE maMatHang = ?';
+    const result = await this.db.query(selectQuery, [maMatHang]);
     if (result.rows.length === 0) return null;
     return new MatHang(result.rows[0]);
   }
 
   async delete(maMatHang) {
-    const query = 'DELETE FROM MatHang WHERE maMatHang = $1 RETURNING *';
-    const result = await this.db.query(query, [maMatHang]);
-    if (result.rows.length === 0) return null;
-    return new MatHang(result.rows[0]);
+    const selectQuery = 'SELECT * FROM MatHang WHERE maMatHang = ?';
+    const selectResult = await this.db.query(selectQuery, [maMatHang]);
+    if (selectResult.rows.length === 0) return null;
+    const query = 'DELETE FROM MatHang WHERE maMatHang = ?';
+    await this.db.query(query, [maMatHang]);
+    return new MatHang(selectResult.rows[0]);
   }
 
   async updateTonKho(maMatHang, soLuong) {
     const query = `
       UPDATE MatHang 
-      SET tonKho = tonKho + $1, ngayCapNhat = $2
-      WHERE maMatHang = $3
-      RETURNING *
+      SET tonKho = tonKho + ?, ngayCapNhat = ?
+      WHERE maMatHang = ?
     `;
-    const result = await this.db.query(query, [soLuong, new Date(), maMatHang]);
+    await this.db.query(query, [soLuong, new Date(), maMatHang]);
+    const selectQuery = 'SELECT * FROM MatHang WHERE maMatHang = ?';
+    const result = await this.db.query(selectQuery, [maMatHang]);
     if (result.rows.length === 0) return null;
     return new MatHang(result.rows[0]);
   }

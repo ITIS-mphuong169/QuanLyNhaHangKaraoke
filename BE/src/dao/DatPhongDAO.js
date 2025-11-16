@@ -16,20 +16,20 @@ class DatPhongDAO {
   }
 
   async getById(maDatPhong) {
-    const query = 'SELECT * FROM DatPhong WHERE maDatPhong = $1';
+    const query = 'SELECT * FROM DatPhong WHERE maDatPhong = ?';
     const result = await this.db.query(query, [maDatPhong]);
     if (result.rows.length === 0) return null;
     return new DatPhong(result.rows[0]);
   }
 
   async getByPhong(maPhong) {
-    const query = 'SELECT * FROM DatPhong WHERE maPhong = $1 ORDER BY ngayDat DESC';
+    const query = 'SELECT * FROM DatPhong WHERE maPhong = ? ORDER BY ngayDat DESC';
     const result = await this.db.query(query, [maPhong]);
     return result.rows.map(row => new DatPhong(row));
   }
 
   async getByTrangThai(trangThai) {
-    const query = 'SELECT * FROM DatPhong WHERE trangThai = $1 ORDER BY ngayDat DESC';
+    const query = 'SELECT * FROM DatPhong WHERE trangThai = ? ORDER BY ngayDat DESC';
     const result = await this.db.query(query, [trangThai]);
     return result.rows.map(row => new DatPhong(row));
   }
@@ -37,7 +37,7 @@ class DatPhongDAO {
   async getByDateRange(startDate, endDate) {
     const query = `
       SELECT * FROM DatPhong 
-      WHERE ngayDat >= $1 AND ngayDat <= $2
+      WHERE ngayDat >= ? AND ngayDat <= ?
       ORDER BY ngayDat DESC
     `;
     const result = await this.db.query(query, [startDate, endDate]);
@@ -49,8 +49,7 @@ class DatPhongDAO {
       INSERT INTO DatPhong (maPhong, maKhachHang, maNhanVien, ngayDat, gioBatDau, gioKetThuc, 
                            soGio, tongTien, tienPhong, tienMatHang, giamGia, 
                            phuongThucThanhToan, trangThai, ghiChu, ngayTao, ngayCapNhat)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-      RETURNING *
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       datPhong.maPhong,
@@ -70,19 +69,20 @@ class DatPhongDAO {
       new Date(),
       new Date()
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM DatPhong WHERE maDatPhong = LAST_INSERT_ID()';
+    const result = await this.db.query(selectQuery);
     return new DatPhong(result.rows[0]);
   }
 
   async update(maDatPhong, datPhong) {
     const query = `
       UPDATE DatPhong 
-      SET maPhong = $1, maKhachHang = $2, maNhanVien = $3, ngayDat = $4,
-          gioBatDau = $5, gioKetThuc = $6, soGio = $7, tongTien = $8,
-          tienPhong = $9, tienMatHang = $10, giamGia = $11,
-          phuongThucThanhToan = $12, trangThai = $13, ghiChu = $14, ngayCapNhat = $15
-      WHERE maDatPhong = $16
-      RETURNING *
+      SET maPhong = ?, maKhachHang = ?, maNhanVien = ?, ngayDat = ?,
+          gioBatDau = ?, gioKetThuc = ?, soGio = ?, tongTien = ?,
+          tienPhong = ?, tienMatHang = ?, giamGia = ?,
+          phuongThucThanhToan = ?, trangThai = ?, ghiChu = ?, ngayCapNhat = ?
+      WHERE maDatPhong = ?
     `;
     const values = [
       datPhong.maPhong,
@@ -102,7 +102,9 @@ class DatPhongDAO {
       new Date(),
       maDatPhong
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM DatPhong WHERE maDatPhong = ?';
+    const result = await this.db.query(selectQuery, [maDatPhong]);
     if (result.rows.length === 0) return null;
     return new DatPhong(result.rows[0]);
   }
@@ -110,20 +112,23 @@ class DatPhongDAO {
   async updateTrangThai(maDatPhong, trangThai) {
     const query = `
       UPDATE DatPhong 
-      SET trangThai = $1, ngayCapNhat = $2
-      WHERE maDatPhong = $3
-      RETURNING *
+      SET trangThai = ?, ngayCapNhat = ?
+      WHERE maDatPhong = ?
     `;
-    const result = await this.db.query(query, [trangThai, new Date(), maDatPhong]);
+    await this.db.query(query, [trangThai, new Date(), maDatPhong]);
+    const selectQuery = 'SELECT * FROM DatPhong WHERE maDatPhong = ?';
+    const result = await this.db.query(selectQuery, [maDatPhong]);
     if (result.rows.length === 0) return null;
     return new DatPhong(result.rows[0]);
   }
 
   async delete(maDatPhong) {
-    const query = 'DELETE FROM DatPhong WHERE maDatPhong = $1 RETURNING *';
-    const result = await this.db.query(query, [maDatPhong]);
-    if (result.rows.length === 0) return null;
-    return new DatPhong(result.rows[0]);
+    const selectQuery = 'SELECT * FROM DatPhong WHERE maDatPhong = ?';
+    const selectResult = await this.db.query(selectQuery, [maDatPhong]);
+    if (selectResult.rows.length === 0) return null;
+    const query = 'DELETE FROM DatPhong WHERE maDatPhong = ?';
+    await this.db.query(query, [maDatPhong]);
+    return new DatPhong(selectResult.rows[0]);
   }
 }
 

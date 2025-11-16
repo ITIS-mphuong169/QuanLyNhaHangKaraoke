@@ -16,14 +16,14 @@ class KhachHangDAO {
   }
 
   async getById(maKhachHang) {
-    const query = 'SELECT * FROM KhachHang WHERE maKhachHang = $1';
+    const query = 'SELECT * FROM KhachHang WHERE maKhachHang = ?';
     const result = await this.db.query(query, [maKhachHang]);
     if (result.rows.length === 0) return null;
     return new KhachHang(result.rows[0]);
   }
 
   async getBySoDienThoai(soDienThoai) {
-    const query = 'SELECT * FROM KhachHang WHERE soDienThoai = $1';
+    const query = 'SELECT * FROM KhachHang WHERE soDienThoai = ?';
     const result = await this.db.query(query, [soDienThoai]);
     if (result.rows.length === 0) return null;
     return new KhachHang(result.rows[0]);
@@ -32,18 +32,18 @@ class KhachHangDAO {
   async search(keyword) {
     const query = `
       SELECT * FROM KhachHang 
-      WHERE hoTen ILIKE $1 OR soDienThoai ILIKE $1 OR email ILIKE $1
+      WHERE LOWER(hoTen) LIKE LOWER(?) OR LOWER(soDienThoai) LIKE LOWER(?) OR LOWER(email) LIKE LOWER(?)
       ORDER BY maKhachHang
     `;
-    const result = await this.db.query(query, [`%${keyword}%`]);
+    const searchTerm = `%${keyword}%`;
+    const result = await this.db.query(query, [searchTerm, searchTerm, searchTerm]);
     return result.rows.map(row => new KhachHang(row));
   }
 
   async create(khachHang) {
     const query = `
       INSERT INTO KhachHang (hoTen, soDienThoai, email, diaChi, ngaySinh, gioiTinh, loaiKhachHang, diemTichLuy, ngayTao, ngayCapNhat)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING *
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       khachHang.hoTen,
@@ -57,18 +57,19 @@ class KhachHangDAO {
       new Date(),
       new Date()
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM KhachHang WHERE maKhachHang = LAST_INSERT_ID()';
+    const result = await this.db.query(selectQuery);
     return new KhachHang(result.rows[0]);
   }
 
   async update(maKhachHang, khachHang) {
     const query = `
       UPDATE KhachHang 
-      SET hoTen = $1, soDienThoai = $2, email = $3, diaChi = $4, 
-          ngaySinh = $5, gioiTinh = $6, loaiKhachHang = $7, 
-          diemTichLuy = $8, ngayCapNhat = $9
-      WHERE maKhachHang = $10
-      RETURNING *
+      SET hoTen = ?, soDienThoai = ?, email = ?, diaChi = ?, 
+          ngaySinh = ?, gioiTinh = ?, loaiKhachHang = ?, 
+          diemTichLuy = ?, ngayCapNhat = ?
+      WHERE maKhachHang = ?
     `;
     const values = [
       khachHang.hoTen,
@@ -82,26 +83,31 @@ class KhachHangDAO {
       new Date(),
       maKhachHang
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM KhachHang WHERE maKhachHang = ?';
+    const result = await this.db.query(selectQuery, [maKhachHang]);
     if (result.rows.length === 0) return null;
     return new KhachHang(result.rows[0]);
   }
 
   async delete(maKhachHang) {
-    const query = 'DELETE FROM KhachHang WHERE maKhachHang = $1 RETURNING *';
-    const result = await this.db.query(query, [maKhachHang]);
-    if (result.rows.length === 0) return null;
-    return new KhachHang(result.rows[0]);
+    const selectQuery = 'SELECT * FROM KhachHang WHERE maKhachHang = ?';
+    const selectResult = await this.db.query(selectQuery, [maKhachHang]);
+    if (selectResult.rows.length === 0) return null;
+    const query = 'DELETE FROM KhachHang WHERE maKhachHang = ?';
+    await this.db.query(query, [maKhachHang]);
+    return new KhachHang(selectResult.rows[0]);
   }
 
   async updateDiemTichLuy(maKhachHang, diem) {
     const query = `
       UPDATE KhachHang 
-      SET diemTichLuy = diemTichLuy + $1, ngayCapNhat = $2
-      WHERE maKhachHang = $3
-      RETURNING *
+      SET diemTichLuy = diemTichLuy + ?, ngayCapNhat = ?
+      WHERE maKhachHang = ?
     `;
-    const result = await this.db.query(query, [diem, new Date(), maKhachHang]);
+    await this.db.query(query, [diem, new Date(), maKhachHang]);
+    const selectQuery = 'SELECT * FROM KhachHang WHERE maKhachHang = ?';
+    const result = await this.db.query(selectQuery, [maKhachHang]);
     if (result.rows.length === 0) return null;
     return new KhachHang(result.rows[0]);
   }

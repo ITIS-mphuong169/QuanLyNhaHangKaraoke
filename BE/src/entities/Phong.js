@@ -1,6 +1,7 @@
 /**
  * Entity: Phong (Room)
  * Mô tả: Thực thể đại diện cho phòng karaoke
+ * Schema: maPhong, tenPhong, loaiPhong, sucChua, giaGio, trangThai, moTa, ngayTao, ngayCapNhat
  */
 class Phong {
   constructor(data = {}) {
@@ -11,7 +12,6 @@ class Phong {
     this.giaGio = data.giaGio || 0; // Giá theo giờ
     this.trangThai = data.trangThai || 'TRONG'; // TRONG, DANG_SU_DUNG, BAO_TRI
     this.moTa = data.moTa || '';
-    this.thietBi = data.thietBi || []; // Danh sách thiết bị
     this.ngayTao = data.ngayTao || new Date();
     this.ngayCapNhat = data.ngayCapNhat || new Date();
   }
@@ -25,7 +25,6 @@ class Phong {
       giaGio: this.giaGio,
       trangThai: this.trangThai,
       moTa: this.moTa,
-      thietBi: this.thietBi,
       ngayTao: this.ngayTao,
       ngayCapNhat: this.ngayCapNhat
     };

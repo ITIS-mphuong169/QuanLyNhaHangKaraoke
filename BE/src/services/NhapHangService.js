@@ -5,6 +5,7 @@
 const NhapHangDAO = require('../dao/NhapHangDAO');
 const ChiTietNhapHangDAO = require('../dao/ChiTietNhapHangDAO');
 const MatHangDAO = require('../dao/MatHangDAO');
+const MHCungcapDAO = require('../dao/MHCungcapDAO');
 const NhapHang = require('../entities/NhapHang');
 const ChiTietNhapHang = require('../entities/ChiTietNhapHang');
 
@@ -13,6 +14,7 @@ class NhapHangService {
     this.nhapHangDAO = new NhapHangDAO(db);
     this.chiTietDAO = new ChiTietNhapHangDAO(db);
     this.matHangDAO = new MatHangDAO(db);
+    this.mhCungcapDAO = new MHCungcapDAO(db);
   }
 
   async getAllNhapHang() {
@@ -42,31 +44,65 @@ class NhapHangService {
         throw new Error('Thông tin phiếu nhập không đầy đủ');
       }
 
-      // Tính tổng tiền
-      const tongTien = nhapHangData.chiTiet.reduce((sum, ct) => sum + ct.thanhTien, 0);
+      // Tính tổng tiền từ chi tiết (số lượng * đơn giá từ MatHangCungcap)
+      let tongTien = 0;
 
       const nhapHang = new NhapHang({
         ...nhapHangData,
-        tongTien,
+        tongTien: 0, // Sẽ tính sau
         trangThai: 'DA_NHAP'
       });
 
       const createdNhapHang = await this.nhapHangDAO.create(nhapHang);
 
-      // Tạo chi tiết và cập nhật tồn kho
+      // Tạo chi tiết và cập nhật tồn kho, giá bán
       for (const ct of nhapHangData.chiTiet) {
+        // Lấy thông tin mặt hàng cung cấp để lấy giá nhập
+        const mhCungcapList = await this.mhCungcapDAO.getByNhaCungCap(nhapHangData.maNhaCungCap);
+        const mhCungcap = mhCungcapList.find(mh => mh.maMatHang === ct.maMatHang);
+        
+        if (!mhCungcap) {
+          throw new Error(`Không tìm thấy mặt hàng ${ct.tenMatHang} trong danh sách cung cấp`);
+        }
+
+        // Đơn giá luôn lấy từ MatHangCungcap, không dùng từ request
+        const donGia = mhCungcap.giaNhap || 0;
+        const thanhTien = ct.soLuong * donGia;
+        tongTien += thanhTien;
+
         const chiTiet = new ChiTietNhapHang({
-          ...ct,
           maNhapHang: createdNhapHang.maNhapHang,
-          thanhTien: ct.soLuong * ct.donGia
+          maMatHang: ct.maMatHang,
+          tenMatHang: mhCungcap.tenMatHang,
+          soLuong: ct.soLuong,
+          donGia: donGia,
+          thanhTien: thanhTien
         });
         await this.chiTietDAO.create(chiTiet);
 
-        // Cập nhật tồn kho mặt hàng
+        // Cập nhật tồn kho và giá bán mặt hàng
         if (ct.maMatHang) {
+          // Cập nhật tồn kho
           await this.matHangDAO.updateTonKho(ct.maMatHang, ct.soLuong);
+          
+          // Cập nhật giá bán nếu có trong request
+          if (ct.giaBan !== undefined && ct.giaBan !== null && ct.giaBan !== '') {
+            const existingMatHang = await this.matHangDAO.getById(ct.maMatHang);
+            if (existingMatHang) {
+              await this.matHangDAO.update(ct.maMatHang, {
+                ...existingMatHang.toJSON(),
+                giaBan: parseFloat(ct.giaBan)
+              });
+            }
+          }
         }
       }
+
+      // Cập nhật tổng tiền vào phiếu nhập
+      await this.nhapHangDAO.update(createdNhapHang.maNhapHang, {
+        ...createdNhapHang.toJSON(),
+        tongTien: tongTien
+      });
 
       return await this.getNhapHangById(createdNhapHang.maNhapHang);
     } catch (error) {

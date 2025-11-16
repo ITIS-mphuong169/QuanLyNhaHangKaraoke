@@ -10,13 +10,13 @@ class MatHangSDDAO {
   }
 
   async getByPhieuDat(maPhieuDat) {
-    const query = 'SELECT * FROM MatHangSD WHERE maPhieuDat = $1 ORDER BY tenMatHang';
+    const query = 'SELECT * FROM MatHangSD WHERE maPhieuDat = ? ORDER BY tenMatHang';
     const result = await this.db.query(query, [maPhieuDat]);
     return result.rows.map(row => new MatHangSD(row));
   }
 
   async getById(maMatHangSD) {
-    const query = 'SELECT * FROM MatHangSD WHERE maMatHangSD = $1';
+    const query = 'SELECT * FROM MatHangSD WHERE maMatHangSD = ?';
     const result = await this.db.query(query, [maMatHangSD]);
     if (result.rows.length === 0) return null;
     return new MatHangSD(result.rows[0]);
@@ -25,8 +25,7 @@ class MatHangSDDAO {
   async create(matHangSD) {
     const query = `
       INSERT INTO MatHangSD (maPhieuDat, maMatHang, tenMatHang, soLuong, donGia, thanhTien, ngayTao)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING *
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       matHangSD.maPhieuDat,
@@ -37,17 +36,18 @@ class MatHangSDDAO {
       matHangSD.thanhTien,
       new Date()
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM MatHangSD WHERE maMatHangSD = LAST_INSERT_ID()';
+    const result = await this.db.query(selectQuery);
     return new MatHangSD(result.rows[0]);
   }
 
   async update(maMatHangSD, matHangSD) {
     const query = `
       UPDATE MatHangSD 
-      SET maPhieuDat = $1, maMatHang = $2, tenMatHang = $3,
-          soLuong = $4, donGia = $5, thanhTien = $6
-      WHERE maMatHangSD = $7
-      RETURNING *
+      SET maPhieuDat = ?, maMatHang = ?, tenMatHang = ?,
+          soLuong = ?, donGia = ?, thanhTien = ?
+      WHERE maMatHangSD = ?
     `;
     const values = [
       matHangSD.maPhieuDat,
@@ -58,20 +58,24 @@ class MatHangSDDAO {
       matHangSD.thanhTien,
       maMatHangSD
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM MatHangSD WHERE maMatHangSD = ?';
+    const result = await this.db.query(selectQuery, [maMatHangSD]);
     if (result.rows.length === 0) return null;
     return new MatHangSD(result.rows[0]);
   }
 
   async delete(maMatHangSD) {
-    const query = 'DELETE FROM MatHangSD WHERE maMatHangSD = $1 RETURNING *';
-    const result = await this.db.query(query, [maMatHangSD]);
-    if (result.rows.length === 0) return null;
-    return new MatHangSD(result.rows[0]);
+    const selectQuery = 'SELECT * FROM MatHangSD WHERE maMatHangSD = ?';
+    const selectResult = await this.db.query(selectQuery, [maMatHangSD]);
+    if (selectResult.rows.length === 0) return null;
+    const query = 'DELETE FROM MatHangSD WHERE maMatHangSD = ?';
+    await this.db.query(query, [maMatHangSD]);
+    return new MatHangSD(selectResult.rows[0]);
   }
 
   async deleteByPhieuDat(maPhieuDat) {
-    const query = 'DELETE FROM MatHangSD WHERE maPhieuDat = $1';
+    const query = 'DELETE FROM MatHangSD WHERE maPhieuDat = ?';
     await this.db.query(query, [maPhieuDat]);
   }
 }

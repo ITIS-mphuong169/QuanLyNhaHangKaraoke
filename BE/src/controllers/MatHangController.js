@@ -28,21 +28,11 @@ class MatHangController {
     }
   }
 
-  async getMatHangByDanhMuc(req, res) {
+  async getMatHangByNhaCungCap(req, res) {
     try {
-      const { danhMuc } = req.params;
-      const matHangList = await this.matHangService.getMatHangByDanhMuc(danhMuc);
+      const { maNhaCungCap } = req.params;
+      const matHangList = await this.matHangService.getMatHangByNhaCungCap(maNhaCungCap);
       res.json({ success: true, data: matHangList });
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
-    }
-  }
-
-  async searchMatHang(req, res) {
-    try {
-      const { keyword } = req.query;
-      const results = await this.matHangService.searchMatHang(keyword);
-      res.json({ success: true, data: results });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }

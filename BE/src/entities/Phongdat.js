@@ -1,8 +1,9 @@
 /**
- * Entity: Phongdat (Booked Room)
+ * Entity: PhongDat (Booked Room)
  * Mô tả: Thực thể đại diện cho phòng đã được đặt trong phiếu đặt
+ * Schema: maPhongDat, maPhieuDat, maPhong, gioBatDau, gioKetThuc, soGio, ngayTao
  */
-class Phongdat {
+class PhongDat {
   constructor(data = {}) {
     this.maPhongDat = data.maPhongDat || null;
     this.maPhieuDat = data.maPhieuDat || null;
@@ -10,8 +11,6 @@ class Phongdat {
     this.gioBatDau = data.gioBatDau || null;
     this.gioKetThuc = data.gioKetThuc || null;
     this.soGio = data.soGio || 0;
-    this.giaGio = data.giaGio || 0;
-    this.thanhTien = data.thanhTien || 0;
     this.ngayTao = data.ngayTao || new Date();
   }
 
@@ -23,12 +22,10 @@ class Phongdat {
       gioBatDau: this.gioBatDau,
       gioKetThuc: this.gioKetThuc,
       soGio: this.soGio,
-      giaGio: this.giaGio,
-      thanhTien: this.thanhTien,
       ngayTao: this.ngayTao
     };
   }
 }
 
-module.exports = Phongdat;
+module.exports = PhongDat;
 

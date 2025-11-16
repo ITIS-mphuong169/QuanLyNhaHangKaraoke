@@ -18,7 +18,7 @@ class PhongDAO {
 
   // Lấy phòng theo mã
   async getById(maPhong) {
-    const query = 'SELECT * FROM Phong WHERE maPhong = $1';
+    const query = 'SELECT * FROM Phong WHERE maPhong = ?';
     const result = await this.db.query(query, [maPhong]);
     if (result.rows.length === 0) return null;
     return new Phong(result.rows[0]);
@@ -26,7 +26,7 @@ class PhongDAO {
 
   // Lấy phòng theo trạng thái
   async getByTrangThai(trangThai) {
-    const query = 'SELECT * FROM Phong WHERE trangThai = $1 ORDER BY maPhong';
+    const query = 'SELECT * FROM Phong WHERE trangThai = ? ORDER BY maPhong';
     const result = await this.db.query(query, [trangThai]);
     return result.rows.map(row => new Phong(row));
   }
@@ -34,22 +34,22 @@ class PhongDAO {
   // Tạo phòng mới
   async create(phong) {
     const query = `
-      INSERT INTO Phong (tenPhong, loaiPhong, sucChua, giaGio, trangThai, moTa, thietBi, ngayTao, ngayCapNhat)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING *
+      INSERT INTO Phong (tenPhong, loaiPhong, sucChua, giaGio, trangThai, moTa, ngayTao, ngayCapNhat)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       phong.tenPhong,
       phong.loaiPhong,
       phong.sucChua,
       phong.giaGio,
-      phong.trangThai,
-      phong.moTa,
-      JSON.stringify(phong.thietBi),
+      phong.trangThai || 'TRONG',
+      phong.moTa || null,
       new Date(),
       new Date()
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM Phong WHERE maPhong = LAST_INSERT_ID()';
+    const result = await this.db.query(selectQuery);
     return new Phong(result.rows[0]);
   }
 
@@ -57,10 +57,9 @@ class PhongDAO {
   async update(maPhong, phong) {
     const query = `
       UPDATE Phong 
-      SET tenPhong = $1, loaiPhong = $2, sucChua = $3, giaGio = $4, 
-          trangThai = $5, moTa = $6, thietBi = $7, ngayCapNhat = $8
-      WHERE maPhong = $9
-      RETURNING *
+      SET tenPhong = ?, loaiPhong = ?, sucChua = ?, giaGio = ?, 
+          trangThai = ?, moTa = ?, ngayCapNhat = ?
+      WHERE maPhong = ?
     `;
     const values = [
       phong.tenPhong,
@@ -68,33 +67,37 @@ class PhongDAO {
       phong.sucChua,
       phong.giaGio,
       phong.trangThai,
-      phong.moTa,
-      JSON.stringify(phong.thietBi),
+      phong.moTa || null,
       new Date(),
       maPhong
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM Phong WHERE maPhong = ?';
+    const result = await this.db.query(selectQuery, [maPhong]);
     if (result.rows.length === 0) return null;
     return new Phong(result.rows[0]);
   }
 
   // Xóa phòng
   async delete(maPhong) {
-    const query = 'DELETE FROM Phong WHERE maPhong = $1 RETURNING *';
-    const result = await this.db.query(query, [maPhong]);
-    if (result.rows.length === 0) return null;
-    return new Phong(result.rows[0]);
+    const selectQuery = 'SELECT * FROM Phong WHERE maPhong = ?';
+    const selectResult = await this.db.query(selectQuery, [maPhong]);
+    if (selectResult.rows.length === 0) return null;
+    const query = 'DELETE FROM Phong WHERE maPhong = ?';
+    await this.db.query(query, [maPhong]);
+    return new Phong(selectResult.rows[0]);
   }
 
   // Cập nhật trạng thái phòng
   async updateTrangThai(maPhong, trangThai) {
     const query = `
       UPDATE Phong 
-      SET trangThai = $1, ngayCapNhat = $2
-      WHERE maPhong = $3
-      RETURNING *
+      SET trangThai = ?, ngayCapNhat = ?
+      WHERE maPhong = ?
     `;
-    const result = await this.db.query(query, [trangThai, new Date(), maPhong]);
+    await this.db.query(query, [trangThai, new Date(), maPhong]);
+    const selectQuery = 'SELECT * FROM Phong WHERE maPhong = ?';
+    const result = await this.db.query(selectQuery, [maPhong]);
     if (result.rows.length === 0) return null;
     return new Phong(result.rows[0]);
   }

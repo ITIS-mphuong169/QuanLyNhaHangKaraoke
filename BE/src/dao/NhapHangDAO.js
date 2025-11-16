@@ -16,14 +16,14 @@ class NhapHangDAO {
   }
 
   async getById(maNhapHang) {
-    const query = 'SELECT * FROM NhapHang WHERE maNhapHang = $1';
+    const query = 'SELECT * FROM NhapHang WHERE maNhapHang = ?';
     const result = await this.db.query(query, [maNhapHang]);
     if (result.rows.length === 0) return null;
     return new NhapHang(result.rows[0]);
   }
 
   async getByNhaCungCap(maNhaCungCap) {
-    const query = 'SELECT * FROM NhapHang WHERE maNhaCungCap = $1 ORDER BY ngayNhap DESC';
+    const query = 'SELECT * FROM NhapHang WHERE maNhaCungCap = ? ORDER BY ngayNhap DESC';
     const result = await this.db.query(query, [maNhaCungCap]);
     return result.rows.map(row => new NhapHang(row));
   }
@@ -31,8 +31,7 @@ class NhapHangDAO {
   async create(nhapHang) {
     const query = `
       INSERT INTO NhapHang (maNhaCungCap, maNhanVien, ngayNhap, tongTien, ghiChu, trangThai, ngayTao, ngayCapNhat)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       nhapHang.maNhaCungCap,
@@ -44,17 +43,18 @@ class NhapHangDAO {
       new Date(),
       new Date()
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM NhapHang WHERE maNhapHang = LAST_INSERT_ID()';
+    const result = await this.db.query(selectQuery);
     return new NhapHang(result.rows[0]);
   }
 
   async update(maNhapHang, nhapHang) {
     const query = `
       UPDATE NhapHang 
-      SET maNhaCungCap = $1, maNhanVien = $2, ngayNhap = $3,
-          tongTien = $4, ghiChu = $5, trangThai = $6, ngayCapNhat = $7
-      WHERE maNhapHang = $8
-      RETURNING *
+      SET maNhaCungCap = ?, maNhanVien = ?, ngayNhap = ?,
+          tongTien = ?, ghiChu = ?, trangThai = ?, ngayCapNhat = ?
+      WHERE maNhapHang = ?
     `;
     const values = [
       nhapHang.maNhaCungCap,
@@ -66,16 +66,20 @@ class NhapHangDAO {
       new Date(),
       maNhapHang
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM NhapHang WHERE maNhapHang = ?';
+    const result = await this.db.query(selectQuery, [maNhapHang]);
     if (result.rows.length === 0) return null;
     return new NhapHang(result.rows[0]);
   }
 
   async delete(maNhapHang) {
-    const query = 'DELETE FROM NhapHang WHERE maNhapHang = $1 RETURNING *';
-    const result = await this.db.query(query, [maNhapHang]);
-    if (result.rows.length === 0) return null;
-    return new NhapHang(result.rows[0]);
+    const selectQuery = 'SELECT * FROM NhapHang WHERE maNhapHang = ?';
+    const selectResult = await this.db.query(selectQuery, [maNhapHang]);
+    if (selectResult.rows.length === 0) return null;
+    const query = 'DELETE FROM NhapHang WHERE maNhapHang = ?';
+    await this.db.query(query, [maNhapHang]);
+    return new NhapHang(selectResult.rows[0]);
   }
 }
 

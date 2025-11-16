@@ -1,82 +1,81 @@
 /**
- * DAO: PhongdatDAO
- * Mô tả: Lớp Data Access Object cho thực thể Phongdat
+ * DAO: PhongDatDAO
+ * Mô tả: Lớp Data Access Object cho thực thể PhongDat
  */
-const Phongdat = require('../entities/Phongdat');
+const PhongDat = require('../entities/Phongdat');
 
-class PhongdatDAO {
+class PhongDatDAO {
   constructor(db) {
     this.db = db;
   }
 
   async getByPhieuDat(maPhieuDat) {
-    const query = 'SELECT * FROM Phongdat WHERE maPhieuDat = $1 ORDER BY gioBatDau';
+    const query = 'SELECT * FROM PhongDat WHERE maPhieuDat = ? ORDER BY gioBatDau';
     const result = await this.db.query(query, [maPhieuDat]);
-    return result.rows.map(row => new Phongdat(row));
+    return result.rows.map(row => new PhongDat(row));
   }
 
   async getById(maPhongDat) {
-    const query = 'SELECT * FROM Phongdat WHERE maPhongDat = $1';
+    const query = 'SELECT * FROM PhongDat WHERE maPhongDat = ?';
     const result = await this.db.query(query, [maPhongDat]);
     if (result.rows.length === 0) return null;
-    return new Phongdat(result.rows[0]);
+    return new PhongDat(result.rows[0]);
   }
 
-  async create(phongdat) {
+  async create(phongDat) {
     const query = `
-      INSERT INTO Phongdat (maPhieuDat, maPhong, gioBatDau, gioKetThuc, soGio, giaGio, thanhTien, ngayTao)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *
+      INSERT INTO PhongDat (maPhieuDat, maPhong, gioBatDau, gioKetThuc, soGio, ngayTao)
+      VALUES (?, ?, ?, ?, ?, ?)
     `;
     const values = [
-      phongdat.maPhieuDat,
-      phongdat.maPhong,
-      phongdat.gioBatDau,
-      phongdat.gioKetThuc,
-      phongdat.soGio,
-      phongdat.giaGio,
-      phongdat.thanhTien,
+      phongDat.maPhieuDat,
+      phongDat.maPhong,
+      phongDat.gioBatDau,
+      phongDat.gioKetThuc,
+      phongDat.soGio || 0,
       new Date()
     ];
-    const result = await this.db.query(query, values);
-    return new Phongdat(result.rows[0]);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM PhongDat WHERE maPhongDat = LAST_INSERT_ID()';
+    const result = await this.db.query(selectQuery);
+    return new PhongDat(result.rows[0]);
   }
 
-  async update(maPhongDat, phongdat) {
+  async update(maPhongDat, phongDat) {
     const query = `
-      UPDATE Phongdat 
-      SET maPhieuDat = $1, maPhong = $2, gioBatDau = $3, gioKetThuc = $4,
-          soGio = $5, giaGio = $6, thanhTien = $7
-      WHERE maPhongDat = $8
-      RETURNING *
+      UPDATE PhongDat 
+      SET maPhieuDat = ?, maPhong = ?, gioBatDau = ?, gioKetThuc = ?, soGio = ?
+      WHERE maPhongDat = ?
     `;
     const values = [
-      phongdat.maPhieuDat,
-      phongdat.maPhong,
-      phongdat.gioBatDau,
-      phongdat.gioKetThuc,
-      phongdat.soGio,
-      phongdat.giaGio,
-      phongdat.thanhTien,
+      phongDat.maPhieuDat,
+      phongDat.maPhong,
+      phongDat.gioBatDau,
+      phongDat.gioKetThuc,
+      phongDat.soGio,
       maPhongDat
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM PhongDat WHERE maPhongDat = ?';
+    const result = await this.db.query(selectQuery, [maPhongDat]);
     if (result.rows.length === 0) return null;
-    return new Phongdat(result.rows[0]);
+    return new PhongDat(result.rows[0]);
   }
 
   async delete(maPhongDat) {
-    const query = 'DELETE FROM Phongdat WHERE maPhongDat = $1 RETURNING *';
-    const result = await this.db.query(query, [maPhongDat]);
-    if (result.rows.length === 0) return null;
-    return new Phongdat(result.rows[0]);
+    const selectQuery = 'SELECT * FROM PhongDat WHERE maPhongDat = ?';
+    const selectResult = await this.db.query(selectQuery, [maPhongDat]);
+    if (selectResult.rows.length === 0) return null;
+    const query = 'DELETE FROM PhongDat WHERE maPhongDat = ?';
+    await this.db.query(query, [maPhongDat]);
+    return new PhongDat(selectResult.rows[0]);
   }
 
   async deleteByPhieuDat(maPhieuDat) {
-    const query = 'DELETE FROM Phongdat WHERE maPhieuDat = $1';
+    const query = 'DELETE FROM PhongDat WHERE maPhieuDat = ?';
     await this.db.query(query, [maPhieuDat]);
   }
 }
 
-module.exports = PhongdatDAO;
+module.exports = PhongDatDAO;
 

@@ -16,7 +16,7 @@ class NhaCungCapDAO {
   }
 
   async getById(maNhaCungCap) {
-    const query = 'SELECT * FROM NhaCungCap WHERE maNhaCungCap = $1';
+    const query = 'SELECT * FROM NhaCungCap WHERE maNhaCungCap = ?';
     const result = await this.db.query(query, [maNhaCungCap]);
     if (result.rows.length === 0) return null;
     return new NhaCungCap(result.rows[0]);
@@ -25,8 +25,7 @@ class NhaCungCapDAO {
   async create(nhaCungCap) {
     const query = `
       INSERT INTO NhaCungCap (tenNhaCungCap, nguoiLienHe, diaChi, soDienThoai, email, ghiChu, trangThai, ngayTao, ngayCapNhat)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING *
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       nhaCungCap.tenNhaCungCap,
@@ -39,17 +38,18 @@ class NhaCungCapDAO {
       new Date(),
       new Date()
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM NhaCungCap WHERE maNhaCungCap = LAST_INSERT_ID()';
+    const result = await this.db.query(selectQuery);
     return new NhaCungCap(result.rows[0]);
   }
 
   async update(maNhaCungCap, nhaCungCap) {
     const query = `
       UPDATE NhaCungCap 
-      SET tenNhaCungCap = $1, nguoiLienHe = $2, diaChi = $3, soDienThoai = $4,
-          email = $5, ghiChu = $6, trangThai = $7, ngayCapNhat = $8
-      WHERE maNhaCungCap = $9
-      RETURNING *
+      SET tenNhaCungCap = ?, nguoiLienHe = ?, diaChi = ?, soDienThoai = ?,
+          email = ?, ghiChu = ?, trangThai = ?, ngayCapNhat = ?
+      WHERE maNhaCungCap = ?
     `;
     const values = [
       nhaCungCap.tenNhaCungCap,
@@ -62,16 +62,20 @@ class NhaCungCapDAO {
       new Date(),
       maNhaCungCap
     ];
-    const result = await this.db.query(query, values);
+    await this.db.query(query, values);
+    const selectQuery = 'SELECT * FROM NhaCungCap WHERE maNhaCungCap = ?';
+    const result = await this.db.query(selectQuery, [maNhaCungCap]);
     if (result.rows.length === 0) return null;
     return new NhaCungCap(result.rows[0]);
   }
 
   async delete(maNhaCungCap) {
-    const query = 'DELETE FROM NhaCungCap WHERE maNhaCungCap = $1 RETURNING *';
-    const result = await this.db.query(query, [maNhaCungCap]);
-    if (result.rows.length === 0) return null;
-    return new NhaCungCap(result.rows[0]);
+    const selectQuery = 'SELECT * FROM NhaCungCap WHERE maNhaCungCap = ?';
+    const selectResult = await this.db.query(selectQuery, [maNhaCungCap]);
+    if (selectResult.rows.length === 0) return null;
+    const query = 'DELETE FROM NhaCungCap WHERE maNhaCungCap = ?';
+    await this.db.query(query, [maNhaCungCap]);
+    return new NhaCungCap(selectResult.rows[0]);
   }
 }
 
