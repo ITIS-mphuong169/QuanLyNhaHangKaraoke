@@ -1,0 +1,29 @@
+.gd-qltt-mh-bankem {
+  padding: 0;
+}
+
+.filter-section {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 4px;
+  margin-bottom: 24px;
+  border: 1px solid #dee2e6;
+}
+
+.filter-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.mat-hang-table {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.low-stock {
+  color: #dc3545;
+  font-weight: 500;
+}

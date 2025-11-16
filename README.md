@@ -1,70 +1,172 @@
-# Getting Started with Create React App
+# Hệ Thống Quản Lý Nhà Hàng Karaoke
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Hệ thống quản lý toàn diện cho nhà hàng karaoke, được xây dựng theo kiến trúc 3 lớp rõ ràng.
 
-## Available Scripts
+## Cấu Trúc Dự Án
 
-In the project directory, you can run:
+```
+nha-hang-karaoke/
+├── FE/                    # Frontend (React)
+│   └── src/
+│       ├── components/    # Các component tái sử dụng
+│       ├── pages/         # Các trang/giao diện chính
+│       ├── services/      # API services
+│       └── utils/         # Utilities
+│
+├── BE/                    # Backend (Node.js/Express)
+│   └── src/
+│       ├── entities/      # Các thực thể (Entity)
+│       ├── dao/           # Data Access Object layer
+│       ├── services/      # Business logic layer
+│       ├── controllers/   # Controller layer
+│       ├── routes/        # API routes
+│       ├── middleware/     # Middleware
+│       └── config/        # Cấu hình
+│
+└── DTB/                   # Database
+    ├── schemas/           # Database schemas
+    └── migrations/        # Database migrations
+```
 
-### `npm start`
+## Các Thực Thể (Entities)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. **Phong** - Phòng karaoke
+2. **KhachHang** - Khách hàng
+3. **NhanVien** - Nhân viên
+4. **MatHang** - Mặt hàng bán kèm
+5. **NhaCungCap** - Nhà cung cấp
+6. **DatPhong** - Đặt phòng
+7. **HoaDon** - Hóa đơn
+8. **ChiTietHoaDon** - Chi tiết hóa đơn
+9. **NhapHang** - Nhập hàng
+10. **ChiTietNhapHang** - Chi tiết nhập hàng
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Cài Đặt
 
-### `npm test`
+### Backend
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+cd BE
+npm install
+npm start
+```
 
-### `npm run build`
+Backend sẽ chạy tại `http://localhost:3001`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Frontend
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+cd FE
+npm install
+npm start
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Frontend sẽ chạy tại `http://localhost:3000`
 
-### `npm run eject`
+### Database (MySQL)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+#### Bước 1: Cài đặt MySQL
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+**macOS:**
+```bash
+brew install mysql
+brew services start mysql
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+**Windows/Linux:** Tải từ https://dev.mysql.com/downloads/mysql/
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+#### Bước 2: Tạo Database
 
-## Learn More
+```bash
+# Kết nối MySQL
+mysql -u root -p
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Trong MySQL shell:
+CREATE DATABASE IF NOT EXISTS NhaHangKaraoke CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE NhaHangKaraoke;
+exit;
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+#### Bước 3: Chạy Schema SQL
 
-### Code Splitting
+```bash
+# Từ thư mục project
+cd DTB/schemas
+mysql -u root -p NhaHangKaraoke < schema.sql
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+# Hoặc trong MySQL shell:
+mysql -u root -p
+USE NhaHangKaraoke;
+source schema.sql;
+```
 
-### Analyzing the Bundle Size
+#### Bước 4: Tạo File .env
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Tạo file `.env` trong thư mục `BE/`:
 
-### Making a Progressive Web App
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=NhaHangKaraoke
+DB_USER=root
+DB_PASSWORD=Phuong.chechoww1
+PORT=3001
+NODE_ENV=development
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+#### Bước 5: Cài Đặt Dependencies và Test
 
-### Advanced Configuration
+```bash
+cd BE
+npm install
+node test-db.js
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Xem chi tiết tại: [BE/ENV_SETUP.md](./BE/ENV_SETUP.md)
 
-### Deployment
+## Cấu Hình
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Tạo file `.env` trong thư mục BE:
 
-### `npm run build` fails to minify
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=NhaHangKaraoke
+DB_USER=root
+DB_PASSWORD=Phuong.chechoww1
+PORT=3001
+NODE_ENV=development
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Xem chi tiết tại: [BE/ENV_SETUP.md](./BE/ENV_SETUP.md)
+
+## API Endpoints
+
+### Phòng
+- `GET /api/phong` - Lấy danh sách phòng
+- `GET /api/phong/:id` - Lấy thông tin phòng
+- `GET /api/phong/trong` - Lấy danh sách phòng trống
+- `POST /api/phong` - Tạo phòng mới
+- `PUT /api/phong/:id` - Cập nhật phòng
+- `PATCH /api/phong/:id/trang-thai` - Cập nhật trạng thái
+- `DELETE /api/phong/:id` - Xóa phòng
+
+## Kiến Trúc
+
+Hệ thống được xây dựng theo kiến trúc 3 lớp:
+
+1. **Presentation Layer (Frontend)**: React components
+2. **Business Logic Layer (Backend Services)**: Xử lý business logic
+3. **Data Access Layer (DAO)**: Tương tác với database
+
+Mỗi thực thể có đầy đủ:
+- Entity class
+- DAO class
+- Service class
+- Controller class
+- Routes
+- Frontend components
+
+## Tác Giả
+
+Mai Thị Phượng - B22DCCN641

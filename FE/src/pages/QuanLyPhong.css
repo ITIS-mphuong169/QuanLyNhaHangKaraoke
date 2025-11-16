@@ -1,0 +1,106 @@
+.quan-ly-phong {
+  padding: 0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.phong-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.phong-card {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 20px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.phong-card:hover {
+  border-color: #adb5bd;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.phong-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.phong-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.phong-info {
+  margin-bottom: 16px;
+}
+
+.phong-info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.phong-info-item label {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.phong-info-item span {
+  color: #212529;
+}
+
+.phong-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Form styles */
+.form-container {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+  margin-bottom: 24px;
+}
+
+.form-container h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #212529;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #dee2e6;
+}

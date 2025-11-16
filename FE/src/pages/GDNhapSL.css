@@ -1,0 +1,33 @@
+.gd-nhap-sl .modal-content-small {
+  max-width: 400px;
+}
+
+.mat-hang-info {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid #dee2e6;
+}
+
+.mat-hang-info p {
+  margin: 8px 0;
+  color: #212529;
+  font-size: 14px;
+}
+
+.thanh-tien-preview {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+}
+
+.thanh-tien-preview p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #212529;
+}

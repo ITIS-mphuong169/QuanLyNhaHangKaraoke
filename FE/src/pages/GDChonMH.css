@@ -1,0 +1,48 @@
+.gd-chon-mh .modal-content {
+  max-width: 700px;
+  max-height: 80vh;
+}
+
+.filter-bar {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.mh-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.mh-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  transition: border-color 0.15s;
+}
+
+.mh-item:hover {
+  border-color: #adb5bd;
+}
+
+.mh-info {
+  flex: 1;
+}
+
+.mh-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.mh-info p {
+  margin: 4px 0;
+  color: #6c757d;
+  font-size: 13px;
+}

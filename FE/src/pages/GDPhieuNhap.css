@@ -1,0 +1,16 @@
+.gd-phieu-nhap {
+  padding: 0;
+}
+
+.phieu-nhap-info {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+@media print {
+  .section-header {
+    display: none;
+  }
+}

@@ -1,0 +1,39 @@
+.gd-dang-nhap {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f8f9fa;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+}
+
+.login-box {
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.login-box h2 {
+  text-align: center;
+  margin: 0 0 24px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  border: 1px solid #f5c6cb;
+}

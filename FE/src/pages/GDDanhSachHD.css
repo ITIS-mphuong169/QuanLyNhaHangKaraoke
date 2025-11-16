@@ -1,0 +1,46 @@
+.gd-danh-sach-hd {
+  padding: 0;
+}
+
+.filter-section {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 4px;
+  margin-bottom: 24px;
+  border: 1px solid #dee2e6;
+}
+
+.filter-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.hoa-don-table {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-chua-tt {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-da-tt {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-huy {
+  background: #f8d7da;
+  color: #721c24;
+}
