@@ -1,0 +1,83 @@
+.thanh-toan {
+  padding: 20px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-item label {
+  font-weight: 500;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.info-item span {
+  font-size: 16px;
+  color: #212529;
+}
+
+.tien-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tien-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.tien-item label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.tien-item span {
+  font-weight: 600;
+  color: #212529;
+  font-size: 16px;
+}
+
+.tien-item.tong-tien {
+  background: #e7f3ff;
+  border: 2px solid #0d6efd;
+  margin-top: 8px;
+}
+
+.tien-item.tong-tien label {
+  font-size: 18px;
+  color: #0d6efd;
+}
+
+.tien-item.tong-tien span {
+  font-size: 20px;
+  color: #0d6efd;
+}
+
+.btn-large {
+  padding: 12px 32px;
+  font-size: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+

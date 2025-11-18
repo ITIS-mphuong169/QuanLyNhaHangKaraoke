@@ -6,23 +6,17 @@ import React, { useState, useEffect } from 'react';
 import apiService from '../services/api';
 import './GDChonMH.css';
 
-function GDChonMH({ onSelect, onClose, danhMuc }) {
+function GDChonMH({ onSelect, onClose }) {
   const [matHangList, setMatHangList] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [selectedDanhMuc, setSelectedDanhMuc] = useState(danhMuc || '');
 
   useEffect(() => {
     fetchMatHang();
-  }, [selectedDanhMuc]);
+  }, []);
 
   const fetchMatHang = async () => {
     try {
-      let data;
-      if (selectedDanhMuc) {
-        data = await apiService.getMatHangByDanhMuc(selectedDanhMuc);
-      } else {
-        data = await apiService.getMatHangList();
-      }
+      const data = await apiService.getMatHangList();
       if (data.success) {
         setMatHangList(data.data);
       }
@@ -41,8 +35,7 @@ function GDChonMH({ onSelect, onClose, danhMuc }) {
   };
 
   const filteredList = matHangList.filter(mh =>
-    mh.tenMatHang.toLowerCase().includes(searchKeyword.toLowerCase()) &&
-    mh.trangThai === 'CON_HANG'
+    mh.tenMatHang.toLowerCase().includes(searchKeyword.toLowerCase())
   );
 
   return (
@@ -55,20 +48,6 @@ function GDChonMH({ onSelect, onClose, danhMuc }) {
           </div>
 
           <div className="filter-bar">
-            <div className="form-group">
-              <label>Danh mục</label>
-              <select
-                value={selectedDanhMuc}
-                onChange={(e) => setSelectedDanhMuc(e.target.value)}
-              >
-                <option value="">Tất cả</option>
-                <option value="Đồ uống">Đồ uống</option>
-                <option value="Đồ ăn">Đồ ăn</option>
-                <option value="Đồ nhậu">Đồ nhậu</option>
-                <option value="Trái cây">Trái cây</option>
-                <option value="Khác">Khác</option>
-              </select>
-            </div>
             <div className="form-group">
               <label>Tìm kiếm</label>
               <input
@@ -92,7 +71,6 @@ function GDChonMH({ onSelect, onClose, danhMuc }) {
                 >
                   <div className="mh-info">
                     <h4>{mh.tenMatHang}</h4>
-                    <p>Danh mục: {mh.danhMuc}</p>
                     <p>Giá: {parseFloat(mh.giaBan).toLocaleString('vi-VN')} VNĐ</p>
                     <p>Tồn kho: {mh.tonKho} {mh.donViTinh}</p>
                   </div>

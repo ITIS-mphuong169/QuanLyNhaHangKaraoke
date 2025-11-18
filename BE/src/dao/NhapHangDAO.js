@@ -10,16 +10,40 @@ class NhapHangDAO {
   }
 
   async getAll() {
-    const query = 'SELECT * FROM NhapHang ORDER BY ngayNhap DESC';
+    const query = `
+      SELECT 
+        nh.*,
+        ncc.tenNhaCungCap
+      FROM NhapHang nh
+      LEFT JOIN NhaCungCap ncc ON nh.maNhaCungCap = ncc.maNhaCungCap
+      ORDER BY nh.ngayNhap DESC
+    `;
     const result = await this.db.query(query);
-    return result.rows.map(row => new NhapHang(row));
+    return result.rows.map(row => {
+      const nhapHang = new NhapHang(row);
+      return {
+        ...nhapHang.toJSON(),
+        tenNhaCungCap: row.tenNhaCungCap
+      };
+    });
   }
 
   async getById(maNhapHang) {
-    const query = 'SELECT * FROM NhapHang WHERE maNhapHang = ?';
+    const query = `
+      SELECT 
+        nh.*,
+        ncc.tenNhaCungCap
+      FROM NhapHang nh
+      LEFT JOIN NhaCungCap ncc ON nh.maNhaCungCap = ncc.maNhaCungCap
+      WHERE nh.maNhapHang = ?
+    `;
     const result = await this.db.query(query, [maNhapHang]);
     if (result.rows.length === 0) return null;
-    return new NhapHang(result.rows[0]);
+    const nhapHang = new NhapHang(result.rows[0]);
+    return {
+      ...nhapHang.toJSON(),
+      tenNhaCungCap: result.rows[0].tenNhaCungCap
+    };
   }
 
   async getByNhaCungCap(maNhaCungCap) {

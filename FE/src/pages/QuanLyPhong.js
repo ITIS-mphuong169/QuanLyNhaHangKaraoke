@@ -3,6 +3,7 @@
  * Mô tả: Giao diện quản lý phòng karaoke
  */
 import React, { useState, useEffect } from 'react';
+import apiService from '../services/api';
 import './QuanLyPhong.css';
 
 function QuanLyPhong() {
@@ -24,13 +25,13 @@ function QuanLyPhong() {
 
   const fetchPhongList = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/phong');
-      const data = await response.json();
+      const data = await apiService.getPhongList();
       if (data.success) {
         setPhongList(data.data);
       }
     } catch (error) {
       console.error('Lỗi khi lấy danh sách phòng:', error);
+      alert('Có lỗi xảy ra khi lấy danh sách phòng');
     }
   };
 
@@ -63,21 +64,19 @@ function QuanLyPhong() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = editingPhong 
-        ? `http://localhost:3001/api/phong/${editingPhong.maPhong}`
-        : 'http://localhost:3001/api/phong';
-      
-      const method = editingPhong ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
+      const submitData = {
+        ...formData,
+        sucChua: parseInt(formData.sucChua) || 0,
+        giaGio: parseFloat(formData.giaGio) || 0
+      };
 
-      const data = await response.json();
+      let data;
+      if (editingPhong) {
+        data = await apiService.updatePhong(editingPhong.maPhong, submitData);
+      } else {
+        data = await apiService.createPhong(submitData);
+      }
+
       if (data.success) {
         alert(editingPhong ? 'Cập nhật phòng thành công!' : 'Thêm phòng thành công!');
         setShowForm(false);
@@ -87,7 +86,7 @@ function QuanLyPhong() {
       }
     } catch (error) {
       console.error('Lỗi:', error);
-      alert('Có lỗi xảy ra khi lưu phòng');
+      alert('Có lỗi xảy ra khi lưu phòng: ' + (error.message || error));
     }
   };
 
@@ -97,11 +96,7 @@ function QuanLyPhong() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/phong/${maPhong}`, {
-        method: 'DELETE'
-      });
-
-      const data = await response.json();
+      const data = await apiService.deletePhong(maPhong);
       if (data.success) {
         alert('Xóa phòng thành công!');
         fetchPhongList();
@@ -110,21 +105,13 @@ function QuanLyPhong() {
       }
     } catch (error) {
       console.error('Lỗi:', error);
-      alert('Có lỗi xảy ra khi xóa phòng');
+      alert('Có lỗi xảy ra khi xóa phòng: ' + (error.message || error));
     }
   };
 
   const handleUpdateTrangThai = async (maPhong, trangThai) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/phong/${maPhong}/trang-thai`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ trangThai })
-      });
-
-      const data = await response.json();
+      const data = await apiService.updatePhongTrangThai(maPhong, trangThai);
       if (data.success) {
         fetchPhongList();
       } else {
@@ -132,7 +119,7 @@ function QuanLyPhong() {
       }
     } catch (error) {
       console.error('Lỗi:', error);
-      alert('Có lỗi xảy ra khi cập nhật trạng thái');
+      alert('Có lỗi xảy ra khi cập nhật trạng thái: ' + (error.message || error));
     }
   };
 

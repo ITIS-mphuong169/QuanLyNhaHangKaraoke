@@ -1,5 +1,5 @@
-.gd-tao-phieu-nhap {
-  padding: 0;
+.tao-phieu-dat {
+  padding: 20px;
 }
 
 .form-section {
@@ -32,12 +32,14 @@
   padding: 0;
 }
 
+.phong-dat-table,
 .chi-tiet-table {
   width: 100%;
   border-collapse: collapse;
   border: 1px solid #dee2e6;
 }
 
+.phong-dat-table th,
 .chi-tiet-table th {
   background: #f8f9fa;
   padding: 12px;
@@ -47,11 +49,14 @@
   border-bottom: 2px solid #dee2e6;
 }
 
+.phong-dat-table td,
 .chi-tiet-table td {
   padding: 12px;
   border-bottom: 1px solid #dee2e6;
 }
 
+.phong-dat-table input,
+.phong-dat-table select,
 .chi-tiet-table input,
 .chi-tiet-table select {
   width: 100%;
@@ -61,42 +66,19 @@
   font-size: 14px;
 }
 
-.chi-tiet-table tfoot {
-  background: #f8f9fa;
-  font-weight: 600;
-}
-
-.phieu-nhap-list {
-  margin-top: 20px;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.status-success {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.status-cancelled {
-  background-color: #f8d7da;
-  color: #721c24;
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #dee2e6;
 }
 
 .empty-message {
+  padding: 20px;
   text-align: center;
-  padding: 40px;
   color: #6c757d;
   font-style: italic;
 }
 
-.btn-small {
-  padding: 6px 12px;
-  font-size: 13px;
-}

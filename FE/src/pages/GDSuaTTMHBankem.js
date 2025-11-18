@@ -12,23 +12,35 @@ function GDSuaTTMHBankem() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     tenMatHang: '',
-    danhMuc: '',
     donViTinh: '',
     giaBan: '',
     giaNhap: '',
     tonKho: '',
     moTa: '',
-    trangThai: 'CON_HANG'
+    maNhaCungCap: ''
   });
+  const [nhaCungCapList, setNhaCungCapList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    fetchNhaCungCapList();
     if (id) {
       fetchMatHang();
     } else {
       setLoading(false);
     }
   }, [id]);
+
+  const fetchNhaCungCapList = async () => {
+    try {
+      const data = await apiService.getNhaCungCapList();
+      if (data.success) {
+        setNhaCungCapList(data.data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách nhà cung cấp:', error);
+    }
+  };
 
   const fetchMatHang = async () => {
     setLoading(true);
@@ -38,13 +50,12 @@ function GDSuaTTMHBankem() {
         const mh = data.data;
         setFormData({
           tenMatHang: mh.tenMatHang,
-          danhMuc: mh.danhMuc,
           donViTinh: mh.donViTinh,
           giaBan: mh.giaBan,
           giaNhap: mh.giaNhap || '',
           tonKho: mh.tonKho,
           moTa: mh.moTa || '',
-          trangThai: mh.trangThai
+          maNhaCungCap: mh.maNhaCungCap || ''
         });
       }
       setLoading(false);
@@ -98,32 +109,15 @@ function GDSuaTTMHBankem() {
               required
             />
           </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Danh mục *</label>
-              <select
-                value={formData.danhMuc}
-                onChange={(e) => setFormData({ ...formData, danhMuc: e.target.value })}
-                required
-              >
-                <option value="">Chọn danh mục</option>
-                <option value="Đồ uống">Đồ uống</option>
-                <option value="Đồ ăn">Đồ ăn</option>
-                <option value="Đồ nhậu">Đồ nhậu</option>
-                <option value="Trái cây">Trái cây</option>
-                <option value="Khác">Khác</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Đơn vị tính *</label>
-              <input
-                type="text"
-                value={formData.donViTinh}
-                onChange={(e) => setFormData({ ...formData, donViTinh: e.target.value })}
-                placeholder="Ví dụ: chai, hộp, đĩa..."
-                required
-              />
-            </div>
+          <div className="form-group">
+            <label>Đơn vị tính *</label>
+            <input
+              type="text"
+              value={formData.donViTinh}
+              onChange={(e) => setFormData({ ...formData, donViTinh: e.target.value })}
+              placeholder="Ví dụ: chai, hộp, đĩa..."
+              required
+            />
           </div>
         </div>
 
@@ -163,14 +157,18 @@ function GDSuaTTMHBankem() {
             </div>
           </div>
           <div className="form-group">
-            <label>Trạng thái</label>
+            <label>Nhà cung cấp *</label>
             <select
-              value={formData.trangThai}
-              onChange={(e) => setFormData({ ...formData, trangThai: e.target.value })}
+              value={formData.maNhaCungCap}
+              onChange={(e) => setFormData({ ...formData, maNhaCungCap: e.target.value })}
+              required
             >
-              <option value="CON_HANG">Còn hàng</option>
-              <option value="HET_HANG">Hết hàng</option>
-              <option value="NGUNG_BAN">Ngừng bán</option>
+              <option value="">Chọn nhà cung cấp</option>
+              {nhaCungCapList.map(ncc => (
+                <option key={ncc.maNhaCungCap} value={ncc.maNhaCungCap}>
+                  {ncc.tenNhaCungCap}
+                </option>
+              ))}
             </select>
           </div>
         </div>

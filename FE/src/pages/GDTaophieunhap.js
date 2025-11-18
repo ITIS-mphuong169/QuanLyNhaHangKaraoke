@@ -13,6 +13,9 @@ function GDTaophieunhap() {
   const [matHangList, setMatHangList] = useState([]);
   const [selectedNCC, setSelectedNCC] = useState('');
   const [chiTietNhap, setChiTietNhap] = useState([]);
+  const [phieuNhapList, setPhieuNhapList] = useState([]);
+  const [loadingPhieuNhap, setLoadingPhieuNhap] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState({
     maNhaCungCap: '',
     ngayNhap: new Date().toISOString().split('T')[0],
@@ -21,8 +24,17 @@ function GDTaophieunhap() {
 
   useEffect(() => {
     fetchNhaCungCap();
-    fetchMatHang();
+    fetchPhieuNhapList();
   }, []);
+
+  useEffect(() => {
+    if (formData.maNhaCungCap) {
+      fetchMatHangByNCC(formData.maNhaCungCap);
+    } else {
+      setMatHangList([]);
+      setChiTietNhap([]);
+    }
+  }, [formData.maNhaCungCap]);
 
   const fetchNhaCungCap = async () => {
     try {
@@ -35,14 +47,29 @@ function GDTaophieunhap() {
     }
   };
 
-  const fetchMatHang = async () => {
+  const fetchMatHangByNCC = async (maNhaCungCap) => {
     try {
-      const data = await apiService.getMatHangList();
+      const data = await apiService.getMatHangByNhaCungCap(maNhaCungCap);
       if (data.success) {
         setMatHangList(data.data);
       }
     } catch (error) {
-      console.error('Lỗi khi lấy danh sách mặt hàng:', error);
+      console.error('Lỗi khi lấy danh sách mặt hàng theo nhà cung cấp:', error);
+      setMatHangList([]);
+    }
+  };
+
+  const fetchPhieuNhapList = async () => {
+    setLoadingPhieuNhap(true);
+    try {
+      const data = await apiService.getNhapHangList();
+      if (data.success) {
+        setPhieuNhapList(data.data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách phiếu nhập:', error);
+    } finally {
+      setLoadingPhieuNhap(false);
     }
   };
 
@@ -95,6 +122,18 @@ function GDTaophieunhap() {
       const data = await apiService.createNhapHang(nhapHangData);
       if (data.success) {
         alert('Tạo phiếu nhập thành công!');
+        // Refresh danh sách phiếu nhập
+        fetchPhieuNhapList();
+        // Reset form
+        setFormData({
+          maNhaCungCap: '',
+          ngayNhap: new Date().toISOString().split('T')[0],
+          ghiChu: ''
+        });
+        setChiTietNhap([]);
+        setMatHangList([]);
+        setShowCreateForm(false);
+        // Navigate to detail page
         navigate(`/phieu-nhap/${data.data.maNhapHang}`);
       } else {
         alert('Có lỗi xảy ra: ' + data.message);
@@ -106,13 +145,25 @@ function GDTaophieunhap() {
 
   const tongTien = chiTietNhap.reduce((sum, item) => sum + item.thanhTien, 0);
 
+  const handleCancelCreate = () => {
+    setShowCreateForm(false);
+    setFormData({
+      maNhaCungCap: '',
+      ngayNhap: new Date().toISOString().split('T')[0],
+      ghiChu: ''
+    });
+    setChiTietNhap([]);
+    setMatHangList([]);
+  };
+
   return (
     <div className="gd-tao-phieu-nhap">
       <div className="section-header">
-        <h2>Tạo Phiếu Nhập Hàng</h2>
+        <h2>Quản Lý Phiếu Nhập Hàng</h2>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      {showCreateForm && (
+        <form onSubmit={handleSubmit}>
         <div className="form-section">
           <h3>Thông Tin Phiếu Nhập</h3>
           <div className="form-row">
@@ -120,7 +171,11 @@ function GDTaophieunhap() {
               <label>Nhà cung cấp *</label>
               <select
                 value={formData.maNhaCungCap}
-                onChange={(e) => setFormData({ ...formData, maNhaCungCap: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, maNhaCungCap: e.target.value });
+                  // Xóa danh sách chi tiết khi thay đổi nhà cung cấp
+                  setChiTietNhap([]);
+                }}
                 required
               >
                 <option value="">Chọn nhà cung cấp</option>
@@ -154,9 +209,19 @@ function GDTaophieunhap() {
         <div className="form-section">
           <div className="section-header-small">
             <h3>Chi Tiết Nhập Hàng</h3>
-            <button type="button" className="btn btn-secondary" onClick={handleAddMatHang}>
+            <button 
+              type="button" 
+              className="btn btn-secondary" 
+              onClick={handleAddMatHang}
+              disabled={!formData.maNhaCungCap}
+            >
               + Thêm Mặt Hàng
             </button>
+            {!formData.maNhaCungCap && (
+              <small style={{ display: 'block', marginTop: '5px', color: '#666' }}>
+                Vui lòng chọn nhà cung cấp trước
+              </small>
+            )}
           </div>
 
           {chiTietNhap.length === 0 ? (
@@ -181,11 +246,16 @@ function GDTaophieunhap() {
                       <select
                         value={item.maMatHang}
                         onChange={(e) => {
-                          const selected = matHangList.find(mh => mh.maMatHang === e.target.value);
-                          handleUpdateChiTiet(index, 'maMatHang', e.target.value);
-                          handleUpdateChiTiet(index, 'tenMatHang', selected?.tenMatHang || '');
+                          const selected = matHangList.find(mh => mh.maMatHang === parseInt(e.target.value));
+                          if (selected) {
+                            handleUpdateChiTiet(index, 'maMatHang', selected.maMatHang);
+                            handleUpdateChiTiet(index, 'tenMatHang', selected.tenMatHang || '');
+                            // Tự động điền đơn giá từ MatHangCungcap
+                            handleUpdateChiTiet(index, 'donGia', selected.giaNhap || 0);
+                          }
                         }}
                         required
+                        disabled={!formData.maNhaCungCap}
                       >
                         <option value="">Chọn mặt hàng</option>
                         {matHangList.map(mh => (
@@ -199,7 +269,7 @@ function GDTaophieunhap() {
                       <input
                         type="number"
                         value={item.soLuong}
-                        onChange={(e) => handleUpdateChiTiet(index, 'soLuong', parseInt(e.target.value))}
+                        onChange={(e) => handleUpdateChiTiet(index, 'soLuong', parseInt(e.target.value) || 0)}
                         min="1"
                         required
                       />
@@ -208,11 +278,12 @@ function GDTaophieunhap() {
                       <input
                         type="number"
                         value={item.donGia}
-                        onChange={(e) => handleUpdateChiTiet(index, 'donGia', parseFloat(e.target.value))}
-                        min="0"
-                        step="1000"
-                        required
+                        readOnly
+                        style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
                       />
+                      <small style={{ display: 'block', marginTop: '2px', fontSize: '11px', color: '#666' }}>
+                        Giá tự động từ thông tin mặt hàng
+                      </small>
                     </td>
                     <td>{item.thanhTien.toLocaleString('vi-VN')} VNĐ</td>
                     <td>
@@ -242,11 +313,83 @@ function GDTaophieunhap() {
           <button type="submit" className="btn btn-primary">
             Tạo Phiếu Nhập
           </button>
-          <button type="button" className="btn btn-secondary">
+          <button type="button" className="btn btn-secondary" onClick={handleCancelCreate}>
             Hủy
           </button>
         </div>
       </form>
+      )}
+
+      <div className="form-section">
+        <div className="section-header-small">
+          <h3>Danh Sách Phiếu Nhập</h3>
+          <div>
+            {!showCreateForm && (
+              <button 
+                type="button" 
+                className="btn btn-primary" 
+                onClick={() => setShowCreateForm(true)}
+                style={{ marginRight: '10px' }}
+              >
+                + Tạo Phiếu Nhập Mới
+              </button>
+            )}
+            <button 
+              type="button" 
+              className="btn btn-secondary" 
+              onClick={fetchPhieuNhapList}
+              disabled={loadingPhieuNhap}
+            >
+              {loadingPhieuNhap ? 'Đang tải...' : 'Làm mới'}
+            </button>
+          </div>
+        </div>
+
+        {loadingPhieuNhap ? (
+          <p className="empty-message">Đang tải danh sách phiếu nhập...</p>
+        ) : phieuNhapList.length === 0 ? (
+          <p className="empty-message">Chưa có phiếu nhập nào.</p>
+        ) : (
+          <div className="phieu-nhap-list">
+            <table className="chi-tiet-table">
+              <thead>
+                <tr>
+                  <th>Mã phiếu</th>
+                  <th>Nhà cung cấp</th>
+                  <th>Ngày nhập</th>
+                  <th>Tổng tiền</th>
+                  <th>Trạng thái</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {phieuNhapList.map((phieu) => (
+                  <tr key={phieu.maNhapHang}>
+                    <td>PN{phieu.maNhapHang}</td>
+                    <td>{phieu.tenNhaCungCap || 'N/A'}</td>
+                    <td>{new Date(phieu.ngayNhap).toLocaleDateString('vi-VN')}</td>
+                    <td>{parseFloat(phieu.tongTien || 0).toLocaleString('vi-VN')} VNĐ</td>
+                    <td>
+                      <span className={`status-badge ${phieu.trangThai === 'DA_NHAP' ? 'status-success' : 'status-cancelled'}`}>
+                        {phieu.trangThai === 'DA_NHAP' ? 'Đã nhập' : 'Đã hủy'}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="btn btn-small btn-primary"
+                        onClick={() => navigate(`/phieu-nhap/${phieu.maNhapHang}`)}
+                      >
+                        Xem chi tiết
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

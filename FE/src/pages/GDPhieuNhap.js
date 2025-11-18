@@ -53,7 +53,7 @@ function GDPhieuNhap() {
           <button className="btn btn-primary" onClick={handleInPhieu}>
             In Phiếu
           </button>
-          <button className="btn btn-secondary" onClick={() => navigate('/nha-cung-cap')}>
+          <button className="btn btn-secondary" onClick={() => navigate('/tao-phieu-nhap')}>
             Quay lại
           </button>
         </div>

@@ -15,6 +15,9 @@ import GDChiTietHD from './pages/GDChiTietHD';
 import GDPhieuNhap from './pages/GDPhieuNhap';
 import GDQLTTMHbankem from './pages/GDQLTTMHbankem';
 import GDSuaTTMHBankem from './pages/GDSuaTTMHBankem';
+import QuanLyDatPhong from './pages/QuanLyDatPhong';
+import TaoPhieuDat from './pages/TaoPhieuDat';
+import ThanhToan from './pages/ThanhToan';
 // Các component cũ - có thể xóa nếu không dùng
 // import ItemManagement from '../../src/components/ItemManagement';
 // import RevenueStatistics from '../../src/components/RevenueStatistics';
@@ -31,9 +34,10 @@ function App() {
             <ul className="nav-menu">
               <li><Link to="/quan-ly">Trang Chủ</Link></li>
               <li><Link to="/phong">Quản Lý Phòng</Link></li>
+              <li><Link to="/dat-phong">Quản Lý Đặt Phòng</Link></li>
               <li><Link to="/khach-hang">Quản Lý Khách Hàng</Link></li>
               <li><Link to="/mat-hang">Quản Lý Mặt Hàng</Link></li>
-              <li><Link to="/nha-cung-cap">Nhà Cung Cấp</Link></li>
+              <li><Link to="/nha-cung-cap">Nhập Hàng</Link></li>
               <li><Link to="/thong-ke-mh">Thống Kê Mặt Hàng</Link></li>
               <li><Link to="/danh-sach-hoa-don">Hóa Đơn</Link></li>
             </ul>
@@ -46,6 +50,9 @@ function App() {
             <Route path="/dang-nhap" element={<GDDangNhap />} />
             <Route path="/quan-ly" element={<GDQuanLY />} />
             <Route path="/phong" element={<QuanLyPhong />} />
+            <Route path="/dat-phong" element={<QuanLyDatPhong />} />
+            <Route path="/tao-phieu-dat" element={<TaoPhieuDat />} />
+            <Route path="/thanh-toan/:id" element={<ThanhToan />} />
             <Route path="/khach-hang" element={<QuanLyKhachHang />} />
             <Route path="/mat-hang" element={<GDQLTTMHbankem />} />
             <Route path="/sua-mat-hang/:id?" element={<GDSuaTTMHBankem />} />

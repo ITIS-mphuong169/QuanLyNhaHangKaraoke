@@ -13,22 +13,39 @@ function GDQLTTMHbankem() {
   const [matHangList, setMatHangList] = useState([]);
   const [showChonMH, setShowChonMH] = useState(false);
   const [showNhapSL, setShowNhapSL] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [selectedMatHang, setSelectedMatHang] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [selectedDanhMuc, setSelectedDanhMuc] = useState('');
+  const [formData, setFormData] = useState({
+    tenMatHang: '',
+    donViTinh: '',
+    giaBan: '',
+    giaNhap: '',
+    tonKho: '',
+    moTa: '',
+    maNhaCungCap: ''
+  });
+  const [nhaCungCapList, setNhaCungCapList] = useState([]);
 
   useEffect(() => {
     fetchMatHangList();
-  }, [selectedDanhMuc]);
+    fetchNhaCungCapList();
+  }, []);
+
+  const fetchNhaCungCapList = async () => {
+    try {
+      const data = await apiService.getNhaCungCapList();
+      if (data.success) {
+        setNhaCungCapList(data.data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách nhà cung cấp:', error);
+    }
+  };
 
   const fetchMatHangList = async () => {
     try {
-      let data;
-      if (selectedDanhMuc) {
-        data = await apiService.getMatHangByDanhMuc(selectedDanhMuc);
-      } else {
-        data = await apiService.getMatHangList();
-      }
+      const data = await apiService.getMatHangList();
       if (data.success) {
         setMatHangList(data.data);
       }
@@ -38,7 +55,39 @@ function GDQLTTMHbankem() {
   };
 
   const handleAdd = () => {
-    setShowChonMH(true);
+    setFormData({
+      tenMatHang: '',
+      donViTinh: '',
+      giaBan: '',
+      giaNhap: '',
+      moTa: '',
+      maNhaCungCap: ''
+    });
+    setShowForm(true);
+  };
+
+  const handleSubmitForm = async (e) => {
+    e.preventDefault();
+    try {
+      const submitData = {
+        ...formData,
+        giaBan: parseFloat(formData.giaBan) || 0,
+        giaNhap: parseFloat(formData.giaNhap) || 0,
+        tonKho: 0  // Tồn kho mặc định là 0 khi thêm mới
+      };
+
+      const data = await apiService.createMatHang(submitData);
+      if (data.success) {
+        alert('Thêm mặt hàng mới thành công!');
+        setShowForm(false);
+        fetchMatHangList();
+      } else {
+        alert('Có lỗi xảy ra: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Lỗi:', error);
+      alert('Có lỗi xảy ra khi thêm mặt hàng mới');
+    }
   };
 
   const handleSelectMatHang = (matHang) => {
@@ -97,28 +146,11 @@ function GDQLTTMHbankem() {
           <button className="btn btn-primary" onClick={handleAdd}>
             + Thêm Mặt Hàng Mới
           </button>
-          <Link to="/sua-mat-hang" className="btn btn-secondary">
-            Sửa Mặt Hàng
-          </Link>
         </div>
       </div>
 
       <div className="filter-section">
         <div className="filter-form">
-          <div className="form-group">
-            <label>Danh mục</label>
-            <select
-              value={selectedDanhMuc}
-              onChange={(e) => setSelectedDanhMuc(e.target.value)}
-            >
-              <option value="">Tất cả</option>
-              <option value="Đồ uống">Đồ uống</option>
-              <option value="Đồ ăn">Đồ ăn</option>
-              <option value="Đồ nhậu">Đồ nhậu</option>
-              <option value="Trái cây">Trái cây</option>
-              <option value="Khác">Khác</option>
-            </select>
-          </div>
           <div className="form-group">
             <label>Tìm kiếm</label>
             <input
@@ -140,7 +172,6 @@ function GDQLTTMHbankem() {
               <tr>
                 <th>STT</th>
                 <th>Tên mặt hàng</th>
-                <th>Danh mục</th>
                 <th>Đơn vị</th>
                 <th>Giá bán</th>
                 <th>Tồn kho</th>
@@ -152,7 +183,6 @@ function GDQLTTMHbankem() {
                 <tr key={mh.maMatHang}>
                   <td>{index + 1}</td>
                   <td>{mh.tenMatHang}</td>
-                  <td>{mh.danhMuc}</td>
                   <td>{mh.donViTinh}</td>
                   <td>{parseFloat(mh.giaBan).toLocaleString('vi-VN')} VNĐ</td>
                   <td className={mh.tonKho < 10 ? 'low-stock' : ''}>
@@ -160,16 +190,6 @@ function GDQLTTMHbankem() {
                   </td>
                   <td>
                     <div className="action-buttons">
-                      <button
-                        className="btn btn-small btn-success"
-                        onClick={() => {
-                          setSelectedMatHang(mh);
-                          setShowNhapSL(true);
-                        }}
-                        disabled={mh.tonKho === 0}
-                      >
-                        Bán
-                      </button>
                       <button
                         className="btn btn-small btn-edit"
                         onClick={() => handleEdit(mh)}
@@ -195,7 +215,6 @@ function GDQLTTMHbankem() {
         <GDChonMH
           onSelect={handleSelectMatHang}
           onClose={() => setShowChonMH(false)}
-          danhMuc={selectedDanhMuc}
         />
       )}
 
@@ -208,6 +227,101 @@ function GDQLTTMHbankem() {
             setSelectedMatHang(null);
           }}
         />
+      )}
+
+      {showForm && (
+        <div className="modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="modal-content" style={{ maxWidth: '600px' }} onClick={(e) => e.stopPropagation()}>
+            <h3>Thêm Mặt Hàng Mới</h3>
+            <form onSubmit={handleSubmitForm}>
+              <div className="form-group">
+                <label>Tên mặt hàng *</label>
+                <input
+                  type="text"
+                  value={formData.tenMatHang}
+                  onChange={(e) => setFormData({ ...formData, tenMatHang: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Đơn vị tính *</label>
+                <input
+                  type="text"
+                  value={formData.donViTinh}
+                  onChange={(e) => setFormData({ ...formData, donViTinh: e.target.value })}
+                  placeholder="Ví dụ: chai, hộp, đĩa..."
+                  required
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Giá nhập (VNĐ)</label>
+                  <input
+                    type="number"
+                    value={formData.giaNhap}
+                    onChange={(e) => setFormData({ ...formData, giaNhap: e.target.value })}
+                    min="0"
+                    step="1000"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Giá bán (VNĐ) *</label>
+                  <input
+                    type="number"
+                    value={formData.giaBan}
+                    onChange={(e) => setFormData({ ...formData, giaBan: e.target.value })}
+                    min="0"
+                    step="1000"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Tồn kho</label>
+                <input
+                  type="text"
+                  value="0"
+                  disabled
+                  style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
+                />
+                <small style={{ display: 'block', marginTop: '5px', color: '#666' }}>
+                  Tồn kho mặc định là 0. Vui lòng nhập hàng để cập nhật tồn kho.
+                </small>
+              </div>
+              <div className="form-group">
+                <label>Nhà cung cấp *</label>
+                <select
+                  value={formData.maNhaCungCap}
+                  onChange={(e) => setFormData({ ...formData, maNhaCungCap: e.target.value })}
+                  required
+                >
+                  <option value="">Chọn nhà cung cấp</option>
+                  {nhaCungCapList.map(ncc => (
+                    <option key={ncc.maNhaCungCap} value={ncc.maNhaCungCap}>
+                      {ncc.tenNhaCungCap}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Mô tả</label>
+                <textarea
+                  value={formData.moTa}
+                  onChange={(e) => setFormData({ ...formData, moTa: e.target.value })}
+                  rows="4"
+                />
+              </div>
+              <div className="form-actions">
+                <button type="submit" className="btn btn-primary">
+                  Thêm Mới
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>
+                  Hủy
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

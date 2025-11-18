@@ -48,7 +48,15 @@ class ApiService {
     return data;
   }
 
-  async updateTrangThaiPhong(id, trangThai) {
+  async deletePhong(id) {
+    const response = await fetch(`${API_BASE_URL}/phong/${id}`, {
+      method: 'DELETE'
+    });
+    const data = await response.json();
+    return data;
+  }
+
+  async updatePhongTrangThai(id, trangThai) {
     const response = await fetch(`${API_BASE_URL}/phong/${id}/trang-thai`, {
       method: 'PATCH',
       headers: {
@@ -132,14 +140,8 @@ class ApiService {
     return data;
   }
 
-  async getMatHangByDanhMuc(danhMuc) {
-    const response = await fetch(`${API_BASE_URL}/mat-hang/danh-muc/${encodeURIComponent(danhMuc)}`);
-    const data = await response.json();
-    return data;
-  }
-
-  async searchMatHang(keyword) {
-    const response = await fetch(`${API_BASE_URL}/mat-hang/search?keyword=${encodeURIComponent(keyword)}`);
+  async getMatHangByNhaCungCap(maNhaCungCap) {
+    const response = await fetch(`${API_BASE_URL}/mat-hang/nha-cung-cap/${maNhaCungCap}`);
     const data = await response.json();
     return data;
   }
@@ -176,7 +178,7 @@ class ApiService {
     return data;
   }
 
-  // Đặt phòng
+  // Đặt phòng (cũ - giữ lại để tương thích)
   async getDatPhongList() {
     const response = await fetch(`${API_BASE_URL}/dat-phong`);
     const data = await response.json();
@@ -220,6 +222,69 @@ class ApiService {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ trangThai })
+    });
+    const data = await response.json();
+    return data;
+  }
+
+  // Phiếu đặt phòng (mới)
+  async getPhieuDatList() {
+    const response = await fetch(`${API_BASE_URL}/phieu-dat`);
+    const data = await response.json();
+    return data;
+  }
+
+  async getPhieuDatById(id) {
+    const response = await fetch(`${API_BASE_URL}/phieu-dat/${id}`);
+    const data = await response.json();
+    return data;
+  }
+
+  async getPhieuDatByTrangThai(trangThai) {
+    const response = await fetch(`${API_BASE_URL}/phieu-dat/trang-thai/${trangThai}`);
+    const data = await response.json();
+    return data;
+  }
+
+  async createPhieuDat(phieuDatData) {
+    const response = await fetch(`${API_BASE_URL}/phieu-dat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(phieuDatData)
+    });
+    const data = await response.json();
+    return data;
+  }
+
+  async updatePhieuDat(id, phieuDatData) {
+    const response = await fetch(`${API_BASE_URL}/phieu-dat/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(phieuDatData)
+    });
+    const data = await response.json();
+    return data;
+  }
+
+  async thanhToanPhieuDat(id, phieuDatData) {
+    const response = await fetch(`${API_BASE_URL}/phieu-dat/${id}/thanh-toan`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(phieuDatData)
+    });
+    const data = await response.json();
+    return data;
+  }
+
+  async deletePhieuDat(id) {
+    const response = await fetch(`${API_BASE_URL}/phieu-dat/${id}`, {
+      method: 'DELETE'
     });
     const data = await response.json();
     return data;

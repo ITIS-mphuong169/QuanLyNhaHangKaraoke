@@ -1,0 +1,87 @@
+.quan-ly-dat-phong {
+  padding: 20px;
+}
+
+.filter-section {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.filter-section .form-group {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.filter-section label {
+  margin-right: 8px;
+  font-weight: 500;
+}
+
+.phieu-dat-table {
+  background: #ffffff;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.phieu-dat-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.phieu-dat-table thead {
+  background: #f8f9fa;
+}
+
+.phieu-dat-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.phieu-dat-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.phieu-dat-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-da-dat {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-dang-su-dung {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-hoan-thanh {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-huy {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
