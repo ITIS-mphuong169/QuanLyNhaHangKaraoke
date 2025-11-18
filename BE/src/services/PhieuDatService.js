@@ -96,7 +96,7 @@ class PhieuDatService {
     
     for (const ct of chiTietList) {
       if (ct.maMatHang) {
-        const matHang = await this.matHangDAO.getById(ct.maMatHang);
+        const matHang = await this.matHangDAO.getById({ maMatHang: ct.maMatHang });
         if (matHang) {
           tongTienMatHang += parseFloat(matHang.giaBan || 0) * parseInt(ct.soLuong || 0);
         }
@@ -191,7 +191,7 @@ class PhieuDatService {
           // Lấy tên mặt hàng từ MatHang hoặc MatHangCungcap
           let tenMatHang = ct.tenMatHang || '';
           if (ct.maMatHang && !tenMatHang) {
-            const matHangDetails = await this.matHangDAO.getByIdWithDetails(ct.maMatHang);
+            const matHangDetails = await this.matHangDAO.getByIdWithDetails({ maMatHang: ct.maMatHang });
             if (matHangDetails) {
               tenMatHang = matHangDetails.tenMatHang || '';
             }
@@ -283,7 +283,7 @@ class PhieuDatService {
           for (const ct of phieuDatData.chiTiet) {
             let tenMatHang = ct.tenMatHang || '';
             if (ct.maMatHang && !tenMatHang) {
-              const matHangDetails = await this.matHangDAO.getByIdWithDetails(ct.maMatHang);
+              const matHangDetails = await this.matHangDAO.getByIdWithDetails({ maMatHang: ct.maMatHang });
               if (matHangDetails) {
                 tenMatHang = matHangDetails.tenMatHang || '';
               }
@@ -368,7 +368,7 @@ class PhieuDatService {
           for (const ct of phieuDatData.chiTiet) {
             let tenMatHang = ct.tenMatHang || '';
             if (ct.maMatHang && !tenMatHang) {
-              const matHangDetails = await this.matHangDAO.getByIdWithDetails(ct.maMatHang);
+              const matHangDetails = await this.matHangDAO.getByIdWithDetails({ maMatHang: ct.maMatHang });
               if (matHangDetails) {
                 tenMatHang = matHangDetails.tenMatHang || '';
               }
@@ -420,7 +420,7 @@ class PhieuDatService {
       // Cập nhật tồn kho mặt hàng nếu có
       for (const ct of chiTietList) {
         if (ct.maMatHang && ct.soLuong > 0) {
-          await this.matHangDAO.updateTonKho(ct.maMatHang, -ct.soLuong);
+          await this.matHangDAO.updateTonKho({ maMatHang: ct.maMatHang, soLuong: -ct.soLuong });
         }
       }
 

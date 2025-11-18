@@ -6,7 +6,7 @@ Hệ thống được xây dựng theo đúng diagram thiết kế với 3 lớp
 
 ## Cấu Trúc Đầy Đủ
 
-### 📁 FE/ - Frontend (View Layer)
+### FE/ - Frontend (View Layer)
 
 #### Pages (Giao Diện)
 1. **GDDangNhap.js** - Giao diện đăng nhập

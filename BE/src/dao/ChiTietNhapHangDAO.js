@@ -9,13 +9,13 @@ class ChiTietNhapHangDAO {
     this.db = db;
   }
 
-  async getByNhapHang(maNhapHang) {
+  async getByNhapHang({ maNhapHang }) {
     const query = 'SELECT * FROM ChiTietNhapHang WHERE maNhapHang = ? ORDER BY maChiTiet';
     const result = await this.db.query(query, [maNhapHang]);
     return result.rows.map(row => new ChiTietNhapHang(row));
   }
 
-  async create(chiTiet) {
+  async create({ chiTiet }) {
     const query = `
       INSERT INTO ChiTietNhapHang (maNhapHang, maMatHang, tenMatHang, soLuong, donGia, thanhTien, ngayTao)
       VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -35,7 +35,7 @@ class ChiTietNhapHangDAO {
     return new ChiTietNhapHang(result.rows[0]);
   }
 
-  async deleteByNhapHang(maNhapHang) {
+  async deleteByNhapHang({ maNhapHang }) {
     const query = 'DELETE FROM ChiTietNhapHang WHERE maNhapHang = ?';
     await this.db.query(query, [maNhapHang]);
   }

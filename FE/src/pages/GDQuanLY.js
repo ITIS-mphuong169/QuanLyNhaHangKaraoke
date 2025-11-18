@@ -16,18 +16,15 @@ function GDQuanLY() {
 
       <div className="dashboard-grid">
         <Link to="/mat-hang" className="dashboard-card">
-          <h3>Quản Lý Mặt Hàng Bán Kèm</h3>
-          <p>Quản lý thông tin mặt hàng bán kèm</p>
+          <h3>Quản Lý Thông Tin Mặt Hàng Bán Kèm</h3>
         </Link>
 
         <Link to="/tao-phieu-nhap" className="dashboard-card">
-          <h3>Nhập Mặt Hàng Từ Nhà Cung Cấp</h3>
-          <p>Nhập mặt hàng bán kèm từ nhà cung cấp</p>
+          <h3>Nhập Mặt Hàng Bán kèm Từ Nhà Cung Cấp</h3>
         </Link>
 
         <Link to="/thong-ke-mh" className="dashboard-card">
-          <h3>Thống Kê Mặt Hàng Theo Doanh Thu</h3>
-          <p>Xem thống kê mặt hàng theo doanh thu</p>
+          <h3>Thống Kê Mặt Hàng Bán Kèm Theo Doanh Thu</h3>
         </Link>
       </div>
     </div>

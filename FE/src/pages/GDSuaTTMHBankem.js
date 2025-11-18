@@ -45,7 +45,7 @@ function GDSuaTTMHBankem() {
   const fetchMatHang = async () => {
     setLoading(true);
     try {
-      const data = await apiService.getMatHangById(id);
+      const data = await apiService.getMatHangById({ id });
       if (data.success) {
         const mh = data.data;
         setFormData({
@@ -69,8 +69,8 @@ function GDSuaTTMHBankem() {
     e.preventDefault();
     try {
       const data = id
-        ? await apiService.updateMatHang(id, formData)
-        : await apiService.createMatHang(formData);
+        ? await apiService.updateMatHang({ id, matHangData: formData })
+        : await apiService.createMatHang({ matHangData: formData });
 
       if (data.success) {
         alert(id ? 'Cập nhật mặt hàng thành công!' : 'Thêm mặt hàng thành công!');

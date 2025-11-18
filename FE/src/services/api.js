@@ -134,19 +134,19 @@ class ApiService {
     return data;
   }
 
-  async getMatHangById(id) {
+  async getMatHangById({ id }) {
     const response = await fetch(`${API_BASE_URL}/mat-hang/${id}`);
     const data = await response.json();
     return data;
   }
 
-  async getMatHangByNhaCungCap(maNhaCungCap) {
+  async getMatHangByNhaCungCap({ maNhaCungCap }) {
     const response = await fetch(`${API_BASE_URL}/mat-hang/nha-cung-cap/${maNhaCungCap}`);
     const data = await response.json();
     return data;
   }
 
-  async createMatHang(matHangData) {
+  async createMatHang({ matHangData }) {
     const response = await fetch(`${API_BASE_URL}/mat-hang`, {
       method: 'POST',
       headers: {
@@ -158,7 +158,7 @@ class ApiService {
     return data;
   }
 
-  async updateMatHang(id, matHangData) {
+  async updateMatHang({ id, matHangData }) {
     const response = await fetch(`${API_BASE_URL}/mat-hang/${id}`, {
       method: 'PUT',
       headers: {
@@ -170,7 +170,7 @@ class ApiService {
     return data;
   }
 
-  async deleteMatHang(id) {
+  async deleteMatHang({ id }) {
     const response = await fetch(`${API_BASE_URL}/mat-hang/${id}`, {
       method: 'DELETE'
     });
@@ -349,13 +349,13 @@ class ApiService {
     return data;
   }
 
-  async getNhapHangById(id) {
+  async getNhapHangById({ id }) {
     const response = await fetch(`${API_BASE_URL}/nhap-hang/${id}`);
     const data = await response.json();
     return data;
   }
 
-  async createNhapHang(nhapHangData) {
+  async createNhapHang({ nhapHangData }) {
     const response = await fetch(`${API_BASE_URL}/nhap-hang`, {
       method: 'POST',
       headers: {
@@ -370,6 +370,12 @@ class ApiService {
   // Nhà cung cấp
   async getNhaCungCapList() {
     const response = await fetch(`${API_BASE_URL}/nha-cung-cap`);
+    const data = await response.json();
+    return data;
+  }
+
+  async getNhaCungCapById(id) {
+    const response = await fetch(`${API_BASE_URL}/nha-cung-cap/${id}`);
     const data = await response.json();
     return data;
   }

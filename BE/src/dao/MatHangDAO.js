@@ -15,14 +15,14 @@ class MatHangDAO {
     return result.rows.map(row => new MatHang(row));
   }
 
-  async getById(maMatHang) {
+  async getById({ maMatHang }) {
     const query = 'SELECT * FROM MatHang WHERE maMatHang = ?';
     const result = await this.db.query(query, [maMatHang]);
     if (result.rows.length === 0) return null;
     return new MatHang(result.rows[0]);
   }
 
-  async getByNhaCungCap(maNhaCungCap) {
+  async getByNhaCungCap({ maNhaCungCap }) {
     const query = 'SELECT * FROM MatHang WHERE maNhaCungCap = ? ORDER BY maMatHang';
     const result = await this.db.query(query, [maNhaCungCap]);
     return result.rows.map(row => new MatHang(row));
@@ -66,7 +66,7 @@ class MatHangDAO {
   /**
    * Lấy mặt hàng theo ID kèm thông tin chi tiết
    */
-  async getByIdWithDetails(maMatHang) {
+  async getByIdWithDetails({ maMatHang }) {
     const query = `
       SELECT 
         mh.maMatHang,
@@ -100,7 +100,7 @@ class MatHangDAO {
     };
   }
 
-  async create(matHang) {
+  async create({ matHang }) {
     const query = `
       INSERT INTO MatHang (giaBan, tonKho, maNhaCungCap, ngayTao, ngayCapNhat)
       VALUES (?, ?, ?, ?, ?)
@@ -118,7 +118,7 @@ class MatHangDAO {
     return new MatHang(result.rows[0]);
   }
 
-  async update(maMatHang, matHang) {
+  async update({ maMatHang, matHang }) {
     const query = `
       UPDATE MatHang 
       SET giaBan = ?, tonKho = ?, maNhaCungCap = ?, ngayCapNhat = ?
@@ -138,7 +138,7 @@ class MatHangDAO {
     return new MatHang(result.rows[0]);
   }
 
-  async delete(maMatHang) {
+  async delete({ maMatHang }) {
     const selectQuery = 'SELECT * FROM MatHang WHERE maMatHang = ?';
     const selectResult = await this.db.query(selectQuery, [maMatHang]);
     if (selectResult.rows.length === 0) return null;
@@ -147,7 +147,7 @@ class MatHangDAO {
     return new MatHang(selectResult.rows[0]);
   }
 
-  async updateTonKho(maMatHang, soLuong) {
+  async updateTonKho({ maMatHang, soLuong }) {
     const query = `
       UPDATE MatHang 
       SET tonKho = tonKho + ?, ngayCapNhat = ?

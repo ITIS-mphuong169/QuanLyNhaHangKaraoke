@@ -15,27 +15,27 @@ class MHCungcapDAO {
     return result.rows.map(row => new MatHangCungcap(row));
   }
 
-  async getById(maMatHangCungCap) {
+  async getById({ maMatHangCungCap }) {
     const query = 'SELECT * FROM MatHangCungcap WHERE maMatHangCungCap = ?';
     const result = await this.db.query(query, [maMatHangCungCap]);
     if (result.rows.length === 0) return null;
     return new MatHangCungcap(result.rows[0]);
   }
 
-  async getByNhaCungCap(maNhaCungCap) {
+  async getByNhaCungCap({ maNhaCungCap }) {
     const query = 'SELECT * FROM MatHangCungcap WHERE maNhaCungCap = ? ORDER BY tenMatHang';
     const result = await this.db.query(query, [maNhaCungCap]);
     return result.rows.map(row => new MatHangCungcap(row));
   }
 
-  async getByMatHang(maMatHang) {
+  async getByMatHang({ maMatHang }) {
     const query = 'SELECT * FROM MatHangCungcap WHERE maMatHang = ?';
     const result = await this.db.query(query, [maMatHang]);
     if (result.rows.length === 0) return null;
     return new MatHangCungcap(result.rows[0]);
   }
 
-  async create(matHangCungcap) {
+  async create({ matHangCungcap }) {
     const query = `
       INSERT INTO MatHangCungcap (maNhaCungCap, maMatHang, tenMatHang, giaNhap, donViTinh, moTa, ngayTao, ngayCapNhat)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -56,7 +56,7 @@ class MHCungcapDAO {
     return new MatHangCungcap(result.rows[0]);
   }
 
-  async update(maMatHangCungCap, matHangCungcap) {
+  async update({ maMatHangCungCap, matHangCungcap }) {
     const query = `
       UPDATE MatHangCungcap 
       SET maNhaCungCap = ?, maMatHang = ?, tenMatHang = ?, 
@@ -80,7 +80,7 @@ class MHCungcapDAO {
     return new MatHangCungcap(result.rows[0]);
   }
 
-  async delete(maMatHangCungCap) {
+  async delete({ maMatHangCungCap }) {
     const selectQuery = 'SELECT * FROM MatHangCungcap WHERE maMatHangCungCap = ?';
     const selectResult = await this.db.query(selectQuery, [maMatHangCungCap]);
     if (selectResult.rows.length === 0) return null;

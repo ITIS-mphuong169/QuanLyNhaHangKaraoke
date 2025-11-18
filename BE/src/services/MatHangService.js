@@ -92,9 +92,9 @@ class MatHangService {
     }
   }
 
-  async getMatHangById(maMatHang) {
+  async getMatHangById({ maMatHang }) {
     try {
-      const matHang = await this.matHangDAO.getByIdWithDetails(maMatHang);
+      const matHang = await this.matHangDAO.getByIdWithDetails({ maMatHang });
       if (!matHang) {
         throw new Error('Không tìm thấy mặt hàng');
       }
@@ -104,16 +104,16 @@ class MatHangService {
     }
   }
 
-  async getMatHangByNhaCungCap(maNhaCungCap) {
+  async getMatHangByNhaCungCap({ maNhaCungCap }) {
     try {
       // Lấy danh sách mặt hàng cung cấp từ MatHangCungcap (có thông tin chi tiết)
-      return await this.mhCungcapDAO.getByNhaCungCap(maNhaCungCap);
+      return await this.mhCungcapDAO.getByNhaCungCap({ maNhaCungCap });
     } catch (error) {
       throw new Error(`Lỗi khi lấy mặt hàng theo nhà cung cấp: ${error.message}`);
     }
   }
 
-  async createMatHang(matHangData) {
+  async createMatHang({ matHangData }) {
     try {
       // Validate dữ liệu mặt hàng (giaBan, tonKho, maNhaCungCap)
       this.validateMatHangData(matHangData, false);
@@ -132,7 +132,7 @@ class MatHangService {
 
       // Tạo mặt hàng trong bảng MatHang
       const matHang = new MatHang(matHangDataNormalized);
-      const createdMatHang = await this.matHangDAO.create(matHang);
+      const createdMatHang = await this.matHangDAO.create({ matHang });
 
       // Tạo thông tin chi tiết trong bảng MatHangCungcap
       const matHangCungcapData = {
@@ -147,7 +147,7 @@ class MatHangService {
       };
 
       const matHangCungcap = new MatHangCungcap(matHangCungcapData);
-      await this.mhCungcapDAO.create(matHangCungcap);
+      await this.mhCungcapDAO.create({ matHangCungcap });
 
       // Trả về mặt hàng đã tạo kèm thông tin chi tiết
       return {
@@ -168,13 +168,13 @@ class MatHangService {
     }
   }
 
-  async updateMatHang(maMatHang, matHangData) {
+  async updateMatHang({ maMatHang, matHangData }) {
     try {
       // Validate dữ liệu trước khi cập nhật
       this.validateMatHangData(matHangData, true);
 
       // Kiểm tra mặt hàng có tồn tại không
-      const existingMatHang = await this.matHangDAO.getById(maMatHang);
+      const existingMatHang = await this.matHangDAO.getById({ maMatHang });
       if (!existingMatHang) {
         throw new Error('Không tìm thấy mặt hàng để cập nhật');
       }
@@ -197,12 +197,12 @@ class MatHangService {
       updateData.maMatHang = maMatHang; // Đảm bảo không thay đổi mã
 
       const matHang = new MatHang(updateData);
-      const updatedMatHang = await this.matHangDAO.update(maMatHang, matHang);
+      const updatedMatHang = await this.matHangDAO.update({ maMatHang, matHang });
 
       // Cập nhật thông tin chi tiết trong MatHangCungcap nếu có
       if (matHangData.tenMatHang || matHangData.donViTinh || matHangData.giaNhap !== undefined || matHangData.moTa !== undefined) {
         // Tìm record MatHangCungcap theo maMatHang
-        const mhCungcap = await this.mhCungcapDAO.getByMatHang(maMatHang);
+        const mhCungcap = await this.mhCungcapDAO.getByMatHang({ maMatHang });
 
         if (mhCungcap) {
           const updateCungcapData = {
@@ -214,7 +214,10 @@ class MatHangService {
               : mhCungcap.giaNhap,
             moTa: matHangData.moTa !== undefined ? matHangData.moTa : mhCungcap.moTa
           };
-          await this.mhCungcapDAO.update(mhCungcap.maMatHangCungCap, new MatHangCungcap(updateCungcapData));
+          await this.mhCungcapDAO.update({
+            maMatHangCungCap: mhCungcap.maMatHangCungCap,
+            matHangCungcap: new MatHangCungcap(updateCungcapData)
+          });
         }
       }
 
@@ -231,17 +234,17 @@ class MatHangService {
     }
   }
 
-  async deleteMatHang(maMatHang) {
+  async deleteMatHang({ maMatHang }) {
     try {
-      return await this.matHangDAO.delete(maMatHang);
+      return await this.matHangDAO.delete({ maMatHang });
     } catch (error) {
       throw new Error(`Lỗi khi xóa mặt hàng: ${error.message}`);
     }
   }
 
-  async updateTonKho(maMatHang, soLuong) {
+  async updateTonKho({ maMatHang, soLuong }) {
     try {
-      return await this.matHangDAO.updateTonKho(maMatHang, soLuong);
+      return await this.matHangDAO.updateTonKho({ maMatHang, soLuong });
     } catch (error) {
       throw new Error(`Lỗi khi cập nhật tồn kho: ${error.message}`);
     }

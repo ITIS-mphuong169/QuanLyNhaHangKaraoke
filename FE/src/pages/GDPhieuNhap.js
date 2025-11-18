@@ -12,6 +12,7 @@ function GDPhieuNhap() {
   const navigate = useNavigate();
   const [phieuNhap, setPhieuNhap] = useState(null);
   const [chiTietList, setChiTietList] = useState([]);
+  const [nhaCungCapName, setNhaCungCapName] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,15 +22,32 @@ function GDPhieuNhap() {
   const fetchPhieuNhap = async () => {
     setLoading(true);
     try {
-      const data = await apiService.getNhapHangById(id);
+      const data = await apiService.getNhapHangById({ id });
       if (data.success) {
         setPhieuNhap(data.data);
         setChiTietList(data.data.chiTiet || []);
+        setNhaCungCapName(data.data.tenNhaCungCap || '');
+        if (!data.data.tenNhaCungCap && data.data.maNhaCungCap) {
+          fetchNhaCungCapName(data.data.maNhaCungCap);
+        }
+      } else {
+        setNhaCungCapName('');
       }
       setLoading(false);
     } catch (error) {
       console.error('Lỗi khi lấy phiếu nhập:', error);
       setLoading(false);
+    }
+  };
+
+  const fetchNhaCungCapName = async (maNhaCungCap) => {
+    try {
+      const data = await apiService.getNhaCungCapById(maNhaCungCap);
+      if (data.success) {
+        setNhaCungCapName(data.data.tenNhaCungCap || '');
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin nhà cung cấp:', error);
     }
   };
 
@@ -69,7 +87,7 @@ function GDPhieuNhap() {
             </div>
             <div className="info-item">
               <label>Nhà cung cấp:</label>
-              <span>{phieuNhap.tenNhaCungCap || 'N/A'}</span>
+              <span>{nhaCungCapName || 'N/A'}</span>
             </div>
             <div className="info-item">
               <label>Ngày nhập:</label>

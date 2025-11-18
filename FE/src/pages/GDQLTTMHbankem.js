@@ -73,10 +73,10 @@ function GDQLTTMHbankem() {
         ...formData,
         giaBan: parseFloat(formData.giaBan) || 0,
         giaNhap: parseFloat(formData.giaNhap) || 0,
-        tonKho: 0  // Tồn kho mặc định là 0 khi thêm mới
+        tonKho: 0  //  mặc định là 0 khi thêm mới
       };
 
-      const data = await apiService.createMatHang(submitData);
+      const data = await apiService.createMatHang({ matHangData: submitData });
       if (data.success) {
         alert('Thêm mặt hàng mới thành công!');
         setShowForm(false);
@@ -96,7 +96,7 @@ function GDQLTTMHbankem() {
     setShowNhapSL(true);
   };
 
-  const handleConfirmSoLuong = async (soLuong) => {
+  const handleConfirmSoLuong = async ({ soLuong }) => {
     if (!selectedMatHang) return;
 
     try {
@@ -121,7 +121,7 @@ function GDQLTTMHbankem() {
     }
 
     try {
-      const data = await apiService.deleteMatHang(maMatHang);
+      const data = await apiService.deleteMatHang({ id: maMatHang });
       if (data.success) {
         alert('Xóa mặt hàng thành công!');
         fetchMatHangList();

@@ -21,7 +21,7 @@ class NhapHangController {
   async getNhapHangById(req, res) {
     try {
       const { id } = req.params;
-      const nhapHang = await this.nhapHangService.getNhapHangById(id);
+      const nhapHang = await this.nhapHangService.getNhapHangById({ maNhapHang: id });
       res.json({ success: true, data: nhapHang });
     } catch (error) {
       res.status(404).json({ success: false, message: error.message });
@@ -30,7 +30,7 @@ class NhapHangController {
 
   async createNhapHang(req, res) {
     try {
-      const nhapHang = await this.nhapHangService.createNhapHang(req.body);
+      const nhapHang = await this.nhapHangService.createNhapHang({ nhapHangData: req.body });
       res.status(201).json({ success: true, data: nhapHang });
     } catch (error) {
       res.status(400).json({ success: false, message: error.message });
@@ -40,7 +40,7 @@ class NhapHangController {
   async deleteNhapHang(req, res) {
     try {
       const { id } = req.params;
-      await this.nhapHangService.deleteNhapHang(id);
+      await this.nhapHangService.deleteNhapHang({ maNhapHang: id });
       res.json({ success: true, message: 'Xóa phiếu nhập thành công' });
     } catch (error) {
       res.status(400).json({ success: false, message: error.message });

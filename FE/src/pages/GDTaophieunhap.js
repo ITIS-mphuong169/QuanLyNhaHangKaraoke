@@ -22,6 +22,16 @@ function GDTaophieunhap() {
     ghiChu: ''
   });
 
+  const getTenNhaCungCap = (phieu) => {
+    if (phieu.tenNhaCungCap) {
+      return phieu.tenNhaCungCap;
+    }
+    const ncc = nhaCungCapList.find(
+      (item) => Number(item.maNhaCungCap) === Number(phieu.maNhaCungCap)
+    );
+    return ncc?.tenNhaCungCap || 'N/A';
+  };
+
   useEffect(() => {
     fetchNhaCungCap();
     fetchPhieuNhapList();
@@ -49,7 +59,7 @@ function GDTaophieunhap() {
 
   const fetchMatHangByNCC = async (maNhaCungCap) => {
     try {
-      const data = await apiService.getMatHangByNhaCungCap(maNhaCungCap);
+      const data = await apiService.getMatHangByNhaCungCap({ maNhaCungCap });
       if (data.success) {
         setMatHangList(data.data);
       }
@@ -119,7 +129,7 @@ function GDTaophieunhap() {
         }))
       };
 
-      const data = await apiService.createNhapHang(nhapHangData);
+      const data = await apiService.createNhapHang({ nhapHangData });
       if (data.success) {
         alert('Tạo phiếu nhập thành công!');
         // Refresh danh sách phiếu nhập
@@ -366,7 +376,7 @@ function GDTaophieunhap() {
                 {phieuNhapList.map((phieu) => (
                   <tr key={phieu.maNhapHang}>
                     <td>PN{phieu.maNhapHang}</td>
-                    <td>{phieu.tenNhaCungCap || 'N/A'}</td>
+                    <td>{getTenNhaCungCap(phieu)}</td>
                     <td>{new Date(phieu.ngayNhap).toLocaleDateString('vi-VN')}</td>
                     <td>{parseFloat(phieu.tongTien || 0).toLocaleString('vi-VN')} VNĐ</td>
                     <td>

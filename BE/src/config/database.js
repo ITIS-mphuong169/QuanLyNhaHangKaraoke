@@ -23,7 +23,7 @@ const pool = mysql.createPool({
 // Test connection khi khởi động
 pool.getConnection()
   .then(connection => {
-    console.log('✅ Đã kết nối MySQL database thành công!');
+    console.log('   Đã kết nối MySQL database thành công!');
     console.log(`   Database: ${connection.config.database}`);
     console.log(`   Host: ${connection.config.host}:${connection.config.port}`);
     connection.release();

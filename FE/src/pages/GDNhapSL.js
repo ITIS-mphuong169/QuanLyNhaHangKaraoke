@@ -24,7 +24,7 @@ function GDNhapSL({ matHang, onConfirm, onClose }) {
     }
 
     if (onConfirm) {
-      onConfirm(soLuong);
+      onConfirm({ soLuong });
     }
     if (onClose) {
       onClose();

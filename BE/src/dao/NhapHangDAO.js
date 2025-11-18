@@ -28,7 +28,7 @@ class NhapHangDAO {
     });
   }
 
-  async getById(maNhapHang) {
+  async getById({ maNhapHang }) {
     const query = `
       SELECT 
         nh.*,
@@ -46,13 +46,13 @@ class NhapHangDAO {
     };
   }
 
-  async getByNhaCungCap(maNhaCungCap) {
+  async getByNhaCungCap({ maNhaCungCap }) {
     const query = 'SELECT * FROM NhapHang WHERE maNhaCungCap = ? ORDER BY ngayNhap DESC';
     const result = await this.db.query(query, [maNhaCungCap]);
     return result.rows.map(row => new NhapHang(row));
   }
 
-  async create(nhapHang) {
+  async create({ nhapHang }) {
     const query = `
       INSERT INTO NhapHang (maNhaCungCap, maNhanVien, ngayNhap, tongTien, ghiChu, trangThai, ngayTao, ngayCapNhat)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -73,7 +73,7 @@ class NhapHangDAO {
     return new NhapHang(result.rows[0]);
   }
 
-  async update(maNhapHang, nhapHang) {
+  async update({ maNhapHang, nhapHang }) {
     const query = `
       UPDATE NhapHang 
       SET maNhaCungCap = ?, maNhanVien = ?, ngayNhap = ?,
@@ -97,7 +97,7 @@ class NhapHangDAO {
     return new NhapHang(result.rows[0]);
   }
 
-  async delete(maNhapHang) {
+  async delete({ maNhapHang }) {
     const selectQuery = 'SELECT * FROM NhapHang WHERE maNhapHang = ?';
     const selectResult = await this.db.query(selectQuery, [maNhapHang]);
     if (selectResult.rows.length === 0) return null;

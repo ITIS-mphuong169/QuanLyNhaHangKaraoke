@@ -25,20 +25,20 @@ class NhapHangService {
     }
   }
 
-  async getNhapHangById(maNhapHang) {
+  async getNhapHangById({ maNhapHang }) {
     try {
-      const nhapHang = await this.nhapHangDAO.getById(maNhapHang);
+      const nhapHang = await this.nhapHangDAO.getById({ maNhapHang });
       if (!nhapHang) {
         throw new Error('Không tìm thấy phiếu nhập');
       }
-      const chiTiet = await this.chiTietDAO.getByNhapHang(maNhapHang);
+      const chiTiet = await this.chiTietDAO.getByNhapHang({ maNhapHang });
       return { ...nhapHang, chiTiet };
     } catch (error) {
       throw new Error(`Lỗi khi lấy thông tin phiếu nhập: ${error.message}`);
     }
   }
 
-  async createNhapHang(nhapHangData) {
+  async createNhapHang({ nhapHangData }) {
     try {
       if (!nhapHangData.maNhaCungCap || !nhapHangData.chiTiet || nhapHangData.chiTiet.length === 0) {
         throw new Error('Thông tin phiếu nhập không đầy đủ');
@@ -53,12 +53,12 @@ class NhapHangService {
         trangThai: 'DA_NHAP'
       });
 
-      const createdNhapHang = await this.nhapHangDAO.create(nhapHang);
+      const createdNhapHang = await this.nhapHangDAO.create({ nhapHang });
 
       // Tạo chi tiết và cập nhật tồn kho, giá bán
       for (const ct of nhapHangData.chiTiet) {
         // Lấy thông tin mặt hàng cung cấp để lấy giá nhập
-        const mhCungcapList = await this.mhCungcapDAO.getByNhaCungCap(nhapHangData.maNhaCungCap);
+        const mhCungcapList = await this.mhCungcapDAO.getByNhaCungCap({ maNhaCungCap: nhapHangData.maNhaCungCap });
         const mhCungcap = mhCungcapList.find(mh => mh.maMatHang === ct.maMatHang);
         
         if (!mhCungcap) {
@@ -78,20 +78,23 @@ class NhapHangService {
           donGia: donGia,
           thanhTien: thanhTien
         });
-        await this.chiTietDAO.create(chiTiet);
+        await this.chiTietDAO.create({ chiTiet });
 
         // Cập nhật tồn kho và giá bán mặt hàng
         if (ct.maMatHang) {
           // Cập nhật tồn kho
-          await this.matHangDAO.updateTonKho(ct.maMatHang, ct.soLuong);
+          await this.matHangDAO.updateTonKho({ maMatHang: ct.maMatHang, soLuong: ct.soLuong });
           
           // Cập nhật giá bán nếu có trong request
           if (ct.giaBan !== undefined && ct.giaBan !== null && ct.giaBan !== '') {
-            const existingMatHang = await this.matHangDAO.getById(ct.maMatHang);
+            const existingMatHang = await this.matHangDAO.getById({ maMatHang: ct.maMatHang });
             if (existingMatHang) {
-              await this.matHangDAO.update(ct.maMatHang, {
-                ...existingMatHang.toJSON(),
-                giaBan: parseFloat(ct.giaBan)
+              await this.matHangDAO.update({
+                maMatHang: ct.maMatHang,
+                matHang: {
+                  ...existingMatHang.toJSON(),
+                  giaBan: parseFloat(ct.giaBan)
+                }
               });
             }
           }
@@ -99,20 +102,23 @@ class NhapHangService {
       }
 
       // Cập nhật tổng tiền vào phiếu nhập
-      await this.nhapHangDAO.update(createdNhapHang.maNhapHang, {
-        ...createdNhapHang.toJSON(),
-        tongTien: tongTien
+      await this.nhapHangDAO.update({
+        maNhapHang: createdNhapHang.maNhapHang,
+        nhapHang: {
+          ...createdNhapHang.toJSON(),
+          tongTien: tongTien
+        }
       });
 
-      return await this.getNhapHangById(createdNhapHang.maNhapHang);
+      return await this.getNhapHangById({ maNhapHang: createdNhapHang.maNhapHang });
     } catch (error) {
       throw new Error(`Lỗi khi tạo phiếu nhập: ${error.message}`);
     }
   }
 
-  async deleteNhapHang(maNhapHang) {
+  async deleteNhapHang({ maNhapHang }) {
     try {
-      return await this.nhapHangDAO.delete(maNhapHang);
+      return await this.nhapHangDAO.delete({ maNhapHang });
     } catch (error) {
       throw new Error(`Lỗi khi xóa phiếu nhập: ${error.message}`);
     }
